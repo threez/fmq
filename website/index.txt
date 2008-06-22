@@ -1,0 +1,106 @@
+h1. FMQ
+
+h2. &#x2192; 'Free Message Queue'
+
+
+h2. What
+
+The project implements a queue system with a server and some client apis.
+
+The server is a mongrel web server that holds REST-named queues. 
+You can GET, POST, DELETE, HEAD queue messages using the normal HTTP requests. 
+The system itself uses a configuration file (YAML) to setup queues at startup or even at runtime. 
+The queue implementations can be changed using an easy plugin system right from your project directory. 
+
+For an simple administration and try out of the system, FMQ has an integrated ajax based web interface.
+
+The client apis are implemented using the HTTP protocol, so that you can use even curl to receive messages. 
+Ruby is implemented right now, other languages will follow.
+
+The queue itself is an URL like http://localhost:5884/myQueueName/ or http://localhost:5884/myApplication/myQueueName/.
+If you do a GET request to this url with a web browser you will receive one message from the queue.
+The queue stores it's internal data in an FIFO in system memory. 
+
+h2. Features
+
+* FIFO message store
+* easy setup and maintainance of system
+* using http for communication
+* changeable queue implementation
+* ruby client lib
+* simple ajax admin interface
+
+h2. Installing
+
+<pre syntax="ruby">sudo gem install fmq</pre>
+
+h2. First steps
+
+After installing the gem you can start by creating a project:
+
+<pre>fmq create my_project_name</pre>
+
+next step is to change to the folder and start the FMQ server:
+<pre>
+cd my_project_name
+fmq
+</pre>
+
+The server will start and host a admin interface on "http://localhost:5884/admin/index":http://localhost:5884/admin/index.
+
+h2. Git, patches, forks and all that stuff
+
+If you want to clone the git repositiory use the command below. Patches, forks and feature requests are welcome, please send them to
+<em>fmq-3z (at) gmx.net</em>.
+
+<pre>git clone git://github.com/threez/fmq.git</pre>
+
+h3. Build and test instructions
+
+<pre>cd fmq
+rake test
+rake install_gem</pre>
+
+h2. Loadtest
+
+<p>To check the performance we have done a load test. 
+The system under test was a 2 GB dual-core intel 1.8 Ghz with 100 Mbit/s LAN and Ruby 1.8.6.
+In the test we simulate 20 applications (with 20 threads).
+Each of this applications did 2 POSTs and 1 GET request for 30min. The POST requests where about 1KB.</p>
+<p>This are the results (from 2008-06-10):</p>
+<table>
+	<tr>
+		<th>Test duration:</th>
+		<td>30:01 min</td>
+	</tr>
+	<tr>
+		<th>Average response time:</th>
+		<td>36 ms</td>
+	</tr>
+	<tr>
+		<th>Passed Transactions:</th>
+		<td style="color: green;">862203</td>
+	</tr>
+	<tr>
+		<th>Failed (because of connection timeout):</th>
+		<td style="color: red;">285</td>
+	</tr>
+	<tr>
+		<th>Transactions per second:</th>
+		<td>476,1</td>
+	</tr>
+	<tr>
+		<th>Transactions per minute:</th>
+		<td>28.749,60</td>
+	</tr>
+	<tr>
+		<th>Transactions per hour:</th>
+		<td>1.724.976</td>
+	</tr>
+
+</table>
+
+h2. License
+
+This code is free to use under the terms of the GNU GENERAL PUBLIC license (v3). 
+

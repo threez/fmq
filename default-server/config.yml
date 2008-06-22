@@ -1,0 +1,66 @@
+server:
+  # start the server on every nic
+  interface: 0.0.0.0
+  # this option set the port for the FMQ
+  port: 5884
+  # here you can setup the log level to see what is going wrong if needed
+  log-level: info
+  
+queue-manager:
+  # if someone pushes to a queue that don't exists
+  # the queue manager will create one for you. This
+  # is a good option if you are in development
+  # the queue will be a LoadBalancedQueue by default
+  auto-create-queues: true
+  # if you want some queues right from startup
+  # define there url and constraints here
+  defined-queues:
+    # queue names are not relevant use them to 
+    # organize your queues
+    test-queue-1:
+      # the path to the queue e.g. /app1/myframe/test1
+      # means http://localhost:5884/app1/myframe/test1
+      # this parameter is not optional
+      path: /fmq_test/test1
+      # this defines the maximum count of messages that 
+      # can be in the queue, if the queue is full every
+      # new message will be rejected with a http error
+      # this parameter is optional if you don't specify
+      # a max value the queue size depends on your system
+      max-messages: 1000000
+      # this optional to and specifys the max content size
+      # for all data of a queue
+      # valid extensions are kb, mb, gb
+      max-size: 10kb
+    test-queue-2:
+      path: /fmq_test/test2
+      # if you want you can specify the class of the queue
+      # this is interessting if you write your own queues
+      class: FreeMessageQueue::LoadBalancedQueue
+    test-queue-3:
+      path: /fmq_test/test3
+      class: MyTestQueue
+    # the admin queue is a special queue, that is used to
+    # administrate the queue_manager
+    admin-page-backend:
+      path: /admin/queue
+      class: FreeMessageQueue::AdminQueue
+      filter: /admin
+    # The following 3 queues are specail queues to, they 
+    # are the admin interface to the application and 
+    # make use of the file queue
+    admin-page-index:
+      path: /admin/index
+      class: FreeMessageQueue::FileQueue
+      file: admin-interface/index.html
+      content-type: text/html
+    admin-page-logo:
+      path: /admin/images/logo.png
+      class: FreeMessageQueue::FileQueue
+      file: admin-interface/images/logo.png
+      content-type: image/png
+    admin-page-prototype:
+      path: /admin/prototype.js
+      class: FreeMessageQueue::FileQueue
+      file: admin-interface/prototype.js
+      content-type: text/javascript
