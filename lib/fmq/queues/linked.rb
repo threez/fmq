@@ -3,33 +3,40 @@
 #
 # This file is part of the Free Message Queue.
 # 
-# Foobar is free software: you can redistribute it and/or modify
+# Free Message Queue is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# Foobar is distributed in the hope that it will be useful,
+# Free Message Queue is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
-# 
+# along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
+#
 module FreeMessageQueue
+  # Simple queue item class is used, because it is 
+  # considered to be faster than ostruct
   class QueueItem
     attr_accessor :next, :data, :created_at
  
+    # Create queue item
     def initialize(data, created_at = Time.new)
       @data = data
       @created_at = created_at
     end
  
+    # Aize of item in bytes
     def bytes
       @data.size
     end
   end
  
+  # *DO* *NOT* *USE* *THIS* *QUEUE* *DIRECTLY* *IN* *THE* *QUEUE* *MANAGER*
+  # it is not thread safe.
+  # This Queue implements a FIFO based store in system memory.
   class LinkedQueue
     attr_reader :size, :bytes
  
@@ -40,13 +47,14 @@ module FreeMessageQueue
       @bytes = 0
     end
  
-    # remove all items
+    # Remove all items from the queue
     def clear 
       if size > 0
         while self.poll; end
       end
     end
- 
+  
+    # Put an item to the queue
     def put(data)
       return false if data == nil
  
@@ -67,6 +75,7 @@ module FreeMessageQueue
       true
     end
  
+    # Return an item from the queue
     def poll()
       if @size > 0
         # remove allways the first item

@@ -3,30 +3,47 @@
 #
 # This file is part of the Free Message Queue.
 # 
-# Foobar is free software: you can redistribute it and/or modify
+# Free Message Queue is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# Foobar is distributed in the hope that it will be useful,
+# Free Message Queue is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
-# 
+# along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
+#
 require 'ostruct'
 
 module FreeMessageQueue
+  # This queue is dedicated to the AJAX based admin interface.
+  #
+  # configuration sample:
+  #  queue-manager:
+  #    auto-create-queues: true
+  #    defined-queues:
+  #      admin-page-backend:
+  #      path: /admin/queue
+  #      class: FreeMessageQueue::AdminQueue
+  #      filter: /admin
   class AdminQueue
+    # QueueManager refrence
     attr_accessor :manager
+    
+    # Bytes size is -1. Size is allways 1 message
+    attr_reader :bytes, :size
     
     def initialize()
       super
+      @bytes = -1
+      @size = 1
       @filter_queues = []
     end
   
+    # returns an json list of visible queues
     def poll()
       item = OpenStruct.new
 
@@ -43,6 +60,7 @@ module FreeMessageQueue
       item
     end
     
+    # can be either used to *create* or *delete* a queue
     def put(data)
       if data.match(/_method=delete&path=(.*)/)
         # delete queue
@@ -54,10 +72,8 @@ module FreeMessageQueue
       end
     end
     
-    def size
-      1 # there is always a message in the queue
-    end
-    
+    # *CONFIGURATION* *OPTION*
+    # sets the paths that should be filterd out, seperate them with space char
     def filter=(str)
       @filter_queues = str.split " "
     end
@@ -73,6 +89,7 @@ module FreeMessageQueue
       skip
     end
   
+    # converts the data of one queue to json format
     def queue_to_json(queue_name)
       constraints = manager.queue_constraints(queue_name)
     

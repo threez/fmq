@@ -2,7 +2,6 @@ h1. FMQ
 
 h2. &#x2192; 'Free Message Queue'
 
-
 h2. What
 
 The project implements a queue system with a server and some client apis.
@@ -19,7 +18,6 @@ Ruby is implemented right now, other languages will follow.
 
 The queue itself is an URL like http://localhost:5884/myQueueName/ or http://localhost:5884/myApplication/myQueueName/.
 If you do a GET request to this url with a web browser you will receive one message from the queue.
-The queue stores it's internal data in an FIFO in system memory. 
 
 h2. Features
 
@@ -29,6 +27,9 @@ h2. Features
 * changeable queue implementation
 * ruby client lib
 * simple ajax admin interface
+* **queues to** return same file every time (debugging)
+* **queues to** forward messages to several queues
+* **queues to** store data in a FIFO in memory (for hith performance)
 
 h2. Installing
 
@@ -41,10 +42,8 @@ After installing the gem you can start by creating a project:
 <pre>fmq create my_project_name</pre>
 
 next step is to change to the folder and start the FMQ server:
-<pre>
-cd my_project_name
-fmq
-</pre>
+<pre>cd my_project_name
+fmq</pre>
 
 The server will start and host a admin interface on "http://localhost:5884/admin/index":http://localhost:5884/admin/index.
 
@@ -67,7 +66,7 @@ h2. Loadtest
 The system under test was a 2 GB dual-core intel 1.8 Ghz with 100 Mbit/s LAN and Ruby 1.8.6.
 In the test we simulate 20 applications (with 20 threads).
 Each of this applications did 2 POSTs and 1 GET request for 30min. The POST requests where about 1KB.</p>
-<p>This are the results (from 2008-06-10):</p>
+<p>This are the results (from 2008-06-10; MongrelHandler):</p>
 <table>
 	<tr>
 		<th>Test duration:</th>

@@ -40,6 +40,14 @@ queue-manager:
     test-queue-3:
       path: /fmq_test/test3
       class: MyTestQueue
+    # this is a forwarding queue wich forwards one message
+    # to some other queues
+    test-queue-forward:
+      path: /fmq_test/forward_to_1_and_2
+      class: FreeMessageQueue::ForwardQueue
+      # you can add as may queues as you want
+      # but seperate them with a space char
+      forward_to: /fmq_test/test1 /fmq_test/test2
     # the admin queue is a special queue, that is used to
     # administrate the queue_manager
     admin-page-backend:

@@ -4,18 +4,18 @@
 #
 # This file is part of the Free Message Queue.
 # 
-# Foobar is free software: you can redistribute it and/or modify
+# Free Message Queue is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# Foobar is distributed in the hope that it will be useful,
+# Free Message Queue is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+# along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
 #
 begin
   require "mongrel"
@@ -25,12 +25,17 @@ rescue LoadError
 end
 
 module FreeMessageQueue
+  # This implements the MongrelServlet that serves free message queue
+  # in a mongrel enviroment
   class MongrelHandler < Mongrel::HttpHandler
+    # When creationg a mongrel handler you have to pass the <em>queue_manager</em>
+    # that should be distributed by mongrel
     def initialize(queue_manager)
       @queue_manager = queue_manager
       @log = FreeMessageQueue.logger
     end
   
+    # Process incoming request and send them to the right sub processing method like <em>process_get</em>
     def process(request, response)
       queue_path = request.params["REQUEST_PATH"]
       method = request.params["REQUEST_METHOD"]
@@ -42,7 +47,8 @@ module FreeMessageQueue
         if method.match(/^(GET|POST|HEAD|DELETE)$/) then
           self.send("process_" + method.downcase, request, response, queue_path)
         else
-          raise QueueManagerException.new("[MongrelHandler] Method is not supported '#{method}'", caller)
+          client_exception(request, response, queue_path, 
+            ArgumentError.new("[MongrelHandler] Method is not supported '#{method}'"))
         end
       rescue QueueManagerException => ex
         client_exception(request, response, queue_path, ex)
@@ -51,10 +57,10 @@ module FreeMessageQueue
       end
     end
   
-  private
+  protected
   
-    # returns an item from queue and sends it to the client
-    # if there is no item to fetch send an 204 (NoContent) and same as HEAD
+    # Returns an item from queue and sends it to the client.
+    # If there is no item to fetch send an 204 (NoContent) and same as HEAD
     def process_get(request, response, queue_path)
       queue_item = @queue_manager.poll(queue_path)
       
@@ -78,7 +84,7 @@ module FreeMessageQueue
       end
     end
     
-    # put new item to the queue and and return sam e as head action
+    # Put new item to the queue and and return sam e as head action (HTTP 200)
     def process_post(request, response, queue_path)
       @log.debug("[MongrelHandler] Response to POST (200)")
       data = request.body.read
@@ -91,7 +97,7 @@ module FreeMessageQueue
       end
     end
     
-    # just return server header and queue size
+    # Just return server header and queue size (HTTP 200)
     def process_head(request, response, queue_path)
       @log.debug("[MongrelHandler] Response to HEAD (200)")
       
@@ -101,7 +107,7 @@ module FreeMessageQueue
       end
     end
     
-    # delete the queue and return server header
+    # Delete the queue and return server header (HTTP 200)
     def process_delete(request, response, queue_path)
       @log.debug("[MongrelHandler] Response to DELETE (200)")
       @queue_manager.delete_queue(queue_path)
@@ -111,7 +117,9 @@ module FreeMessageQueue
       end
     end
     
-    # inform the client that he did something wrong
+    # Inform the client that he did something wrong (HTTP 400).
+    # HTTP-Header field Error contains information about the problem.
+    # The client errorwill also be reported to warn level of logger.
     def client_exception(request, response, queue_path, ex)
       @log.warn("[MongrelHandler] Client error: #{ex}")
       response.start(400) do |head,out|
@@ -120,7 +128,10 @@ module FreeMessageQueue
       end
     end
     
-    # report server error
+    # Report server error (HTTP 500).
+    # HTTP-Header field Error contains information about the problem.
+    # The body of the response contains the full stack trace.
+    # The error and stack trace will also be reported to logger.
     def server_exception(request, response, queue_path, ex)
       @log.fatal("[MongrelHandler] System error: #{ex}")
       for line in ex.backtrace

@@ -3,24 +3,38 @@
 #
 # This file is part of the Free Message Queue.
 # 
-# Foobar is free software: you can redistribute it and/or modify
+# Free Message Queue is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# Foobar is distributed in the hope that it will be useful,
+# Free Message Queue is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
-# 
+# along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
+#
 require File.dirname(__FILE__) + '/syncronized'
 
 module FreeMessageQueue
-  class LoadBalancedQueue
-    attr_accessor :queues, :manager
+  # This queue is an approach to the issue that you want to have
+  # multiple threads at one queue at a time. Currently this is not
+  # considered to be a stable queue. Just use it for experimental things.
+  #
+  # configuration sample:
+  #  queue-manager:
+  #    auto-create-queues: true
+  #    defined-queues:
+  #      test-queue-1:
+  #        path: /fmq_test/test1
+  #        max-messages: 1000000
+  #        max-size: 10kb
+  #        class: FreeMessageQueue::LoadBalancedQueue
+  class LoadBalancedQueue    
+    # QueueManager refrence
+    attr_accessor :manager
     
     def initialize(queue_count = 5)
       @queues = []
@@ -31,6 +45,7 @@ module FreeMessageQueue
       @semaphore = Mutex.new
     end
     
+    # delete all messages in all queues
     def clear
       @queues.each { |q| q.clear }
     end
@@ -49,15 +64,17 @@ module FreeMessageQueue
       return tmp_bytes
     end
     
+    # Return one message from one of the queues
     def poll
       @queues[next_poll_index].poll
     end
     
+    # Put an item to one of the queues
     def put(data)
       @queues[next_put_index].put(data)
     end
     
-    private
+  private
     
     # next index acts like 'round robin'
     def next_poll_index

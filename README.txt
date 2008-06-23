@@ -7,6 +7,7 @@ Project github repositiory: git://github.com/threez/fmq.git
 == TODO:
 
 * create full rdoc
+* support of logging to file
 * add client apis for other languages
 * complete unit tests
 

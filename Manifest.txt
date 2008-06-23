@@ -9,8 +9,10 @@ lib/fmq/client.rb
 lib/fmq/boot.rb
 lib/fmq/mongrel_server.rb
 lib/fmq/queue_manager.rb
+lib/fmq/queues/README.txt
 lib/fmq/queues/admin.rb
 lib/fmq/queues/file.rb
+lib/fmq/queues/forward.rb
 lib/fmq/queues/linked.rb
 lib/fmq/queues/load_balanced.rb
 lib/fmq/queues/syncronized.rb

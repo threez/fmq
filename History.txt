@@ -1,3 +1,13 @@
+== 0.1.1 2008-06-23
+* 7 tiny enhancements:
+  * make the queue manager check if the poll or put to or from a queue is possible
+  * changed mongrel handler to no raise an exception on client error (performance issue)
+  * moved the creation of the fmq logger to the configuration class
+  * aliases for post and get on client and server sides
+  * cleanup some queues (removed methods bytes and size)
+  * added a new queue: ForwardQueue
+  * added some rdoc and documentation
+
 == 0.1.0 2008-06-22
 
 * 1 minor enhancement:
