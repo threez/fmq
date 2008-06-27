@@ -38,6 +38,16 @@ module FreeMessageQueue
   # corresponding constraints. Every queue that is created by this
   # queue manager will get a reference (<em>manager</em>) for later use.
   class QueueManager
+    # Returns the queue that is passed otherwise nil
+    attr_reader :queue
+  
+    # Returns the queue constrains as a hash. The hash has the following structure:
+    #  {
+    #    :max_size => "100mb",
+    #    :max_messages => 1000
+    #  }
+    attr_reader :queue_constraints
+    
     # This value is used to decribe that a constraint has no limit e.g.
     #  :max_messages => INFINITE
     # means that there is no limitation for messages
@@ -77,8 +87,7 @@ module FreeMessageQueue
     
       @log.info("[QueueManager] Create queue '#{name}' {type: #{default_class}, max_messages: #{max_messages}, max_size: #{max_size}}")
 
-      @queue[name] = default_class.new
-      @queue[name].manager = self
+      @queue[name] = default_class.new(self)
       @queue_constraints[name] = {
         :max_messages => max_messages,
         :max_size => max_size
@@ -119,7 +128,7 @@ module FreeMessageQueue
     # it will raise a QueueManagerException. If <em>auto_create_queues</em> is set to *true* the queue
     # will be generated if there isn't a queue with the passed name (path). Otherwise
     # it will raise a QueueManagerException if the passed queue doesn't exists.
-    def put(name, data)
+    def put(name, message)
       unless @queue[name]
         # only auto create queues if it is configured
         if auto_create_queues?
@@ -131,19 +140,19 @@ module FreeMessageQueue
       
       # check max size constraints
       if @queue_constraints[name][:max_size] != INFINITE &&
-        @queue_constraints[name][:max_size] < queue(name).bytes + data.size
+        @queue_constraints[name][:max_size] < queue[name].bytes + message.bytes
         raise QueueManagerException.new("[QueueManager] The queue '#{name}' is full, max amount of space (#{@queue_constraints[name][:max_size]}) is exceeded", caller)
       end
       
       # check max messages constraints
       if @queue_constraints[name][:max_messages] != INFINITE &&
-        @queue_constraints[name][:max_messages] < queue(name).size + 1
+        @queue_constraints[name][:max_messages] < queue[name].size + 1
         raise QueueManagerException.new("[QueueManager] The queue '#{name}' is full, max amount of messages (#{@queue_constraints[name][:max_messages]}) is exceeded", caller)
       end
    
       @log.debug("[QueueManager] put message to queue '#{name}' with #{@queue[name].size} messages")
       if @queue[name].respond_to? :put
-        @queue[name].put(data)
+        @queue[name].put(message)
       else
         raise QueueManagerException.new("[QueueManager] You can't put to queue '#{name}'", caller)
       end
@@ -161,23 +170,9 @@ module FreeMessageQueue
       @queue[name].size
     end
     
-    # Returns the queue constrains as a hash. The hash has the following structure:
-    #  {
-    #    :max_size => "100mb",
-    #    :max_messages => 1000
-    #  }
-    def queue_constraints(name)
-      @queue_constraints[name]
-    end
-   
-    # Returns the queue that is passed otherwise nil
-    def queue(name)
-      @queue[name]
-    end
-    
     # Is the name (path) of the queue in use allready
     def queue_exists?(name)
-      !queue(name).nil?
+      !queue[name].nil?
     end
     
     # create a queue from a configuration hash.
@@ -215,6 +210,7 @@ module FreeMessageQueue
 
       # set class parameter -- this parameter is optional
       default_class = queue_config["class"]
+      puts default_class
       default_class = eval(default_class) unless default_class.nil?
       queue_config.delete "class"
 
@@ -252,9 +248,13 @@ module FreeMessageQueue
     
     # Create the queues that are defined in the configuration
     def setup_queue_manager
-      @log.info("[QueueManager] Create defined queues (#{@config["defined-queues"].size})")
-      for defined_queue in @config["defined-queues"]
-        create_queue_from_config(defined_queue[0], defined_queue[1])
+      if @config.nil?
+        raise QueueManagerException.new("[QueueManager] there is no queue manager configuration" , caller)
+      else
+        @log.info("[QueueManager] Create defined queues (#{@config["defined-queues"].size})")
+        for defined_queue in @config["defined-queues"]
+          create_queue_from_config(defined_queue[0], defined_queue[1])
+        end
       end
     end
   end
