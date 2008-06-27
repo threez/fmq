@@ -52,5 +52,24 @@ module FreeMessageQueue
       @bytes = 0
       @size = 0
     end
+    
+    # returns true if there is no message in the queue
+    def empty?
+      size == 0
+    end
+    
+  protected
+  
+    # update queue size and memory usage (add one messge)
+    def add_message(bytes)
+      @size += 1
+      @bytes += bytes
+    end
+    
+    # update queue size and memory usage (remove one messge)
+    def remove_message(bytes)
+      @size -= 1
+      @bytes -= bytes
+    end
   end
 end
