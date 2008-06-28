@@ -19,7 +19,7 @@
 					  fillSelectWithQueuePaths("select-message-send", queues);
 					  fillTableSpaceWithQueues("queue-table-space", queues);
 					},
-					onFailure: function(transport){ alert(transport.getHeader("Error")) }
+					onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
 				});
 			}
 			
@@ -30,7 +30,7 @@
 					  queues = transport.responseText.evalJSON();
 					  fillTableSpaceWithQueues("queue-table-space", queues);
 					},
-					onFailure: function(transport){ alert(transport.getHeader("Error")) }
+					onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
 				});
 			}
 			
@@ -78,7 +78,7 @@
 					  toggle_element(button_id);
 					},
 					onFailure: function(transport){ 
-					  alert(transport.getHeader("Error"));
+					  alert(transport.getHeader("ERROR"));
 					  toggle_element(button_id);
 					}
 				});
@@ -95,8 +95,8 @@
 					  updateTable();
 					  toggle_element(button_id);
 					},
-					onFailure: function(transport){ 
-					  alert(transport.getHeader("Error"));
+					onFailure: function(transport) { 
+					  alert(transport.getHeader("ERROR"));
 					  toggle_element(button_id);
 					}
 				});
@@ -117,7 +117,7 @@
 					  updateTable();
 					  alert("Queue /" + $("queue-create-path").value + " created successfully");
 					},
-					onFailure: function(transport){ alert(transport.getHeader("Error")) }
+					onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
 				});
 			}
 			
@@ -130,7 +130,7 @@
 					  updateTable();
 					  alert("Queue " + path + " successfully deleted");
 					},
-					onFailure: function(transport){ alert(transport.getHeader("Error")) }
+					onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
 				});
 			}
 		</script>

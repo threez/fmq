@@ -22,14 +22,14 @@ If you do a GET request to this url with a web browser you will receive one mess
 h2. Features
 
 * FIFO message store
-* easy setup and maintainance of system
+* easy setup and maintenance of system
 * using http for communication
 * changeable queue implementation
 * ruby client lib
 * simple ajax admin interface
 * **queues to** return same file every time (debugging)
 * **queues to** forward messages to several queues
-* **queues to** store data in a FIFO in memory (for hith performance)
+* **queues to** store data in a FIFO in memory (for high performance)
 
 h2. Installing
 
@@ -46,6 +46,8 @@ next step is to change to the folder and start the FMQ server:
 fmq</pre>
 
 The server will start and host a admin interface on "http://localhost:5884/admin/index":http://localhost:5884/admin/index.
+
+Have a look at "rDoc":http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html to see how to use the client api.
 
 h2. Git, patches, forks and all that stuff
 

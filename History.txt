@@ -1,4 +1,16 @@
+== 0.2.0 2008-06-28
+
+* 3 minor enhancements:
+  * added a BaseQueue that can be used by other queues to reduce overhead
+  * created unit test for most important classes
+  * the system now fully supports the adding of meta data to messages by passing http parameters
+* 3 tiny changes:
+  * changes to the documentation of creating custom queues
+  * streamlined the linked queue (making use of BaseQueue)
+  * update some parts of the website and admin interface
+
 == 0.1.1 2008-06-23
+
 * 7 tiny enhancements:
   * make the queue manager check if the poll or put to or from a queue is possible
   * changed mongrel handler to no raise an exception on client error (performance issue)
