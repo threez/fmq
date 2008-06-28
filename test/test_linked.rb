@@ -18,7 +18,7 @@ class TestLinkedQueue < Test::Unit::TestCase
 	  assert_equal td_1.payload, @queue.poll.payload
   end
   
-  def test_n_items
+  def test_n_messages
     n = 20
     byte_size = 0
     n.times { |t| byte_size += t.to_s.size }
@@ -35,6 +35,23 @@ class TestLinkedQueue < Test::Unit::TestCase
 	  end
 	  assert_equal 0, @queue.bytes
 	  assert_nil @queue.poll
+  end
+  
+  def test_mam_messages
+    @queue.put(new_msg("asd"))
+    @queue.put(new_msg("asd"))
+    @queue.poll()
+    @queue.put(new_msg("asd"))
+    @queue.put(new_msg("asd"))
+    @queue.poll()
+    @queue.put(new_msg("asd"))
+    @queue.poll()
+    assert_equal 2, @queue.size
+    @queue.put(new_msg("asd"))
+    @queue.put(new_msg("asd"))
+    assert_equal 4, @queue.size
+    @queue.clear
+    assert_equal 0, @queue.size
   end
   
   def test_queue_bytes

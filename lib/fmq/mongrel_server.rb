@@ -40,7 +40,7 @@ module FreeMessageQueue
       queue_path = request.params["REQUEST_PATH"]
       method = request.params["REQUEST_METHOD"]
       @log.debug("[MongrelHandler] Incomming request for #{queue_path} [#{method}] (#{request.params["REMOTE_ADDR"]})")
-      @log.debug("[MongrelHandler] Request data: #{YAML.dump(request.params)})")
+      @log.debug("[MongrelHandler] Request params: #{YAML.dump(request.params)})")
       
       begin
         # process supported features
@@ -62,24 +62,33 @@ module FreeMessageQueue
     # Returns an item from queue and sends it to the client.
     # If there is no item to fetch send an 204 (NoContent) and same as HEAD
     def process_get(request, response, queue_path)
-      queue_item = @queue_manager.poll(queue_path)
+      message = @queue_manager.poll(queue_path)
       
-      if queue_item then
+      unless message.nil? then
         response.start(200) do |head,out|
           @log.debug("[MongrelHandler] Response to GET (200)")
-          head["Content-Type"] = (queue_item.respond_to?(:content_type)) ? queue_item.content_type : "text/plain"
-          head["Server"] = SERVER_HEADER
-          head["Queue-Size"] = @queue_manager.queue_size(queue_path)
-          if !queue_item.data.nil? && queue_item.data.size > 0
-            @log.debug("[MongrelHandler] Response data: #{queue_item.data}")
-            out.write(queue_item.data)
+          head["CONTENT-TYPE"] =  message.content_type
+          head["SERVER"] = SERVER_HEADER
+          head["QUEUE_SIZE"] = @queue_manager.queue_size(queue_path)
+          head["QUEUE_BYTES"] = @queue_manager.queue_bytes(queue_path)
+          
+          # send all options of the message back to the client
+          if message.respond_to?(:option) && message.option.size > 0
+            for option_name in message.option.keys
+              head["MESSAGE_#{option_name.gsub("-", "_").upcase}"] = message.option[option_name].to_s
+            end
+          end
+          
+          if !message.payload.nil? && message.bytes > 0
+            @log.debug("[MongrelHandler] Message payload: #{message.payload}")
+            out.write(message.payload)
           end
         end
       else
         response.start(204) do |head,out|
           @log.debug("[MongrelHandler] Response to GET (204)")
-          head["Server"] = SERVER_HEADER
-          head["Queue-Size"] = 0
+          head["SERVER"] = SERVER_HEADER
+          head["QUEUE_SIZE"] = head["QUEUE_BYTES"] = 0
         end
       end
     end
@@ -87,13 +96,22 @@ module FreeMessageQueue
     # Put new item to the queue and and return sam e as head action (HTTP 200)
     def process_post(request, response, queue_path)
       @log.debug("[MongrelHandler] Response to POST (200)")
-      data = request.body.read
-      @log.debug("[MongrelHandler] DATA: #{data}")
-      @queue_manager.put(queue_path, data)
+      message = Message.new(request.body.read, request.params["CONTENT_TYPE"])
+      @log.debug("[MongrelHandler] Message payload: #{message.payload}")
+       
+      # send all options of the message back to the client
+      for option_name in request.params.keys
+        if option_name.match(/HTTP_MESSAGE_([a-zA-Z][a-zA-Z0-9_\-]*)/)
+          message.option[$1] = request.params[option_name]
+        end
+      end
+      
+      @queue_manager.put(queue_path, message)
       
       response.start(200) do |head,out|
-        head["Server"] = SERVER_HEADER
-        head["Queue-Size"] = @queue_manager.queue_size(queue_path)
+        head["SERVER"] = SERVER_HEADER
+        head["QUEUE_SIZE"] = @queue_manager.queue_size(queue_path)
+        head["QUEUE_BYTES"] = @queue_manager.queue_bytes(queue_path)
       end
     end
     
@@ -102,8 +120,9 @@ module FreeMessageQueue
       @log.debug("[MongrelHandler] Response to HEAD (200)")
       
       response.start(200) do |head,out|
-        head["Server"] = SERVER_HEADER
-        head["Queue-Size"] = @queue_manager.queue_size(queue_path)
+        head["SERVER"] = SERVER_HEADER
+        head["QUEUE_SIZE"] = @queue_manager.queue_size(queue_path)
+        head["QUEUE_BYTES"] = @queue_manager.queue_bytes(queue_path)
       end
     end
     
@@ -113,7 +132,7 @@ module FreeMessageQueue
       @queue_manager.delete_queue(queue_path)
 
       response.start(200) do |head,out|
-        head["Server"] = SERVER_HEADER
+        head["SERVER"] = SERVER_HEADER
       end
     end
     
@@ -123,8 +142,8 @@ module FreeMessageQueue
     def client_exception(request, response, queue_path, ex)
       @log.warn("[MongrelHandler] Client error: #{ex}")
       response.start(400) do |head,out|
-        head["Server"] = SERVER_HEADER
-        head["Error"] = ex.message
+        head["SERVER"] = SERVER_HEADER
+        head["ERROR"] = ex.message
       end
     end
     
@@ -139,9 +158,9 @@ module FreeMessageQueue
       end
       
       response.start(500) do |head,out|
-        head["Content-Type"] = "text/plain"
-        head["Server"] = SERVER_HEADER
-        head["Error"] = ex.message
+        head["CONTENT-TYPE"] = "text/plain"
+        head["SERVER"] = SERVER_HEADER
+        head["ERROR"] = ex.message
         
         out.write(ex.message + "\r\n\r\n")
         for line in ex.backtrace

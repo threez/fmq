@@ -10,14 +10,21 @@ class TestFreeMessageQueue < Test::Unit::TestCase
 
   def test_post_and_get_message
     5.times do |t|
-      @queue.put(TEST_REQUEST + t.to_s)
+      message = new_msg(TEST_REQUEST + t.to_s)
+      message.option["ID"] = t
+      message.option["application-name"] = "Test"
+      @queue.put(message)
     end
     
     assert_equal 5, @queue.size
     assert_equal TEST_REQUEST.size * 5 + 5, @queue.bytes
     
     5.times do |t|
-      assert_equal TEST_REQUEST + t.to_s, @queue.poll()
+      message = @queue.poll()
+      assert_equal TEST_REQUEST + t.to_s, message.payload
+      assert_equal "text/plain", message.content_type
+      assert_equal t, message.option["ID"].to_i
+      assert_equal "Test", message.option["APPLICATION_NAME"]
     end
     
     assert_equal 0, @queue.size

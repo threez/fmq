@@ -165,9 +165,14 @@ module FreeMessageQueue
       @queue.keys
     end
    
-    # Returns the size of a queue in bytes
+    # Returns the size (number of messages)
     def queue_size(name)
       @queue[name].size
+    end
+    
+    # Returns the byte size of the queue
+    def queue_bytes(name)
+      @queue[name].bytes
     end
     
     # Is the name (path) of the queue in use allready
