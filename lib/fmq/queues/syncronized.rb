@@ -32,10 +32,9 @@ module FreeMessageQueue
   #        max-messages: 1000000
   #        max-size: 10kb
   class SyncronizedQueue < LinkedQueue
-    attr_accessor :manager
-  
-    def initialize()
-      super
+    
+    def initialize(manager)
+      super(manager)
       @semaphore = Mutex.new
     end
     

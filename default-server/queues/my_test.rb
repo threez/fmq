@@ -1,20 +1,11 @@
-require "ostruct"
-
-class MyTestQueue
-  attr_accessor :manager
-  attr_reader :bytes, :size
-  
-  def initialize
-    @bytes = @size = 1
-  end
-  
-  def put(data)
-    puts "NEW MESSAGE"
+class MyTestQueue < FreeMessageQueue::BaseQueue
+  def put(message)
+    puts "INCOMMING: #{message.payload}"
   end
   
   def poll
-    item = OpenStruct.new
-    item.data = "Hello World"
-    item
+    msg = FreeMessageQueue::Message.new "Hello World", "text/plain"
+    msg.option["Time"] = Time.now
+    msg
   end
 end

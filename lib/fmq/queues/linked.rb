@@ -45,7 +45,7 @@ module FreeMessageQueue
         # append the message to the end of the queue
         @last_message = @last_message.next = message
       end
-  
+      
       add_message(message.bytes) # update stats
     end
  
@@ -57,6 +57,7 @@ module FreeMessageQueue
         
         # took it off
         @first_message = message.next
+        @last_message = nil if @first_message.nil?
         message.next = nil # unlink the message
         remove_message(message.bytes) # update stats
         

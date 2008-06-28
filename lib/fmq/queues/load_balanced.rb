@@ -36,10 +36,11 @@ module FreeMessageQueue
     # QueueManager refrence
     attr_accessor :manager
     
-    def initialize(queue_count = 5)
+    def initialize(manager, queue_count = 5)
+      @manager = manager
       @queues = []
       queue_count.times do
-      @queues << SyncronizedQueue.new
+        @queues << SyncronizedQueue.new(manager)
       end
       @poll_queue = @put_queue = 0
       @semaphore = Mutex.new

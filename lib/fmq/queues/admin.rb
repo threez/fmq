@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
 #
-require 'ostruct'
+require File.dirname(__FILE__) + '/base'
 
 module FreeMessageQueue
   # This queue is dedicated to the AJAX based admin interface.
@@ -29,24 +29,14 @@ module FreeMessageQueue
   #      path: /admin/queue
   #      class: FreeMessageQueue::AdminQueue
   #      filter: /admin
-  class AdminQueue
-    # QueueManager refrence
-    attr_accessor :manager
-    
-    # Bytes size is -1. Size is allways 1 message
-    attr_reader :bytes, :size
-    
-    def initialize()
-      super
-      @bytes = -1
-      @size = 1
+  class AdminQueue < BaseQueue
+    def initialize(manager)
+      super(manager)
       @filter_queues = []
     end
   
     # returns an json list of visible queues
     def poll()
-      item = OpenStruct.new
-
       queues_code = []
       manager.queues.each do |queue_name|
         # skip if it is filterd
@@ -56,16 +46,15 @@ module FreeMessageQueue
         queues_code << queue_to_json(queue_name)
       end
       
-      item.data = "[%s]" % queues_code.join(",")
-      item
+      Message.new("[%s]" % queues_code.join(","), "application/json")
     end
     
     # can be either used to *create* or *delete* a queue
-    def put(data)
-      if data.match(/_method=delete&path=(.*)/)
+    def put(message)
+      if message.payload.match(/_method=delete&path=(.*)/)
         # delete queue
         manager.delete_queue($1)
-      elsif data.match(/_method=create&data=(.*)/)
+      elsif message.payload.match(/_method=create&data=(.*)/)
         # create queue
         conf = eval($1.gsub(":", "=>").gsub("null", "-1"))
         manager.create_queue_from_config("dynamic-created-queue", conf)
@@ -91,13 +80,13 @@ module FreeMessageQueue
   
     # converts the data of one queue to json format
     def queue_to_json(queue_name)
-      constraints = manager.queue_constraints(queue_name)
+      constraints = manager.queue_constraints[queue_name]
     
       "[\"%s\", %d, %d, %d, %d]" % [
         queue_name,
-        manager.queue(queue_name).bytes,
+        manager.queue[queue_name].bytes,
         constraints[:max_size],
-        manager.queue(queue_name).size,
+        manager.queue[queue_name].size,
         constraints[:max_messages],
       ]
     end

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
 #
-require "ostruct"
+require File.dirname(__FILE__) + '/base'
 
 module FreeMessageQueue
   # This queue returns sends one message to several queues at a time.
@@ -30,23 +30,18 @@ module FreeMessageQueue
   #      forward_to: /fmq_test/test1 /fmq_test/test2
   #
   # *NOTE* the poll method is not implemented in this queue. It is a put only queue.
-  class ForwardQueue
-    # QueueManager refrence
-    attr_accessor :manager
+  class ForwardQueue < BaseQueue
     
-    # Bytes and size are allways 0 because this queue holds no data
-    attr_reader :bytes, :size
-    
-    def initialize
-      @bytes = @size = 0
+    def initialize(manager)
+      super(manager)
       @forwards = []
     end
     
-    # put the data from this queue to the queues
+    # put the message from this queue to the queues
     # that are specified in the <em>forward-to</em> configuration option.
-    def put(data)
+    def put(message)
       for forward in @forwards do
-        @manager.put(forward, data)
+        @manager.put(forward, message.clone)
       end
     end
     

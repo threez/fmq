@@ -25,7 +25,7 @@ module FreeMessageQueue
       :content_type, # the content type of the message
       :option # options hash (META-DATA) for the message
     
-    # Create queue item
+    # Create a message item. The payload is often just a string
     def initialize(payload, content_type = "text/plain", created_at = Time.new)
       @payload = payload
       @created_at = created_at

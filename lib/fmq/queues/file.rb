@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
 #
+require File.dirname(__FILE__) + '/base'
+
 module FreeMessageQueue
   # This queue returns everytime the same file. This is useful during debugging or
   # to serve the admin page.
@@ -31,30 +33,15 @@ module FreeMessageQueue
   #      content-type: text/html
   #
   # *NOTE* the put method is not implemented in this queue. It is a poll only queue.
-  class FileQueue
-    # QueueManager refrence
-    attr_accessor :manager
-    
-    # Bytes are -1 at startup but fill after first poll. Size is allways 1 message
-    attr_reader :bytes, :size
-    
-    def initialize
-      # there is always one message (the file) in the queue
-      @bytes = -1
-      @size = 1
-    end
-
+  class FileQueue < BaseQueue
     # Return the file and content type
     def poll()
-      item = OpenStruct.new
-
       f = open(@file_path, "rb")
-      item.data = f.read
-      @bytes = item.data.size
+      file_content = f.read
       f.close
       
-      item.content_type = @content_type
-      item
+      @bytes = file_content.size
+      Message.new(file_content, @content_type)
     end
     
     # *CONFIGURATION* *OPTION*
