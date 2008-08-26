@@ -27,9 +27,11 @@ h2. Features
 * changeable queue implementation
 * ruby client lib
 * simple ajax admin interface
+* server is based on rack server stack
 * **queues to** return same file every time (debugging)
 * **queues to** forward messages to several queues
 * **queues to** store data in a FIFO in memory (for high performance)
+* **develop** your own queues (very fast)
 
 h2. Installing
 
@@ -43,9 +45,9 @@ After installing the gem you can start by creating a project:
 
 next step is to change to the folder and start the FMQ server:
 <pre>cd my_project_name
-fmq</pre>
+rackup -p 5884</pre>
 
-The server will start and host a admin interface on "http://localhost:5884/admin/index":http://localhost:5884/admin/index.
+The server will start and host a admin interface on "http://localhost:5884/admin/index.html":http://localhost:5884/admin/index.html.
 
 Have a look at "rDoc":http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html to see how to use the client api.
 

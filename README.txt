@@ -39,6 +39,7 @@ stores it’s internal data in an FIFO in system memory.
 * changeable queue implementation
 * ruby client lib
 * simple ajax admin interface
+* implements a rack server stack
 
 == SYNOPSIS:
 
