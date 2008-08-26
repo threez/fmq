@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
 # 
+require "ostruct"
+
 module FreeMessageQueue
   # All queue manager exceptions are raised using this class
   class QueueManagerException < Exception
@@ -40,6 +42,9 @@ module FreeMessageQueue
   class QueueManager
     # Returns the queue that is passed otherwise nil
     attr_reader :queue
+    
+    # <b>true</b> to let the queue manager create a queue automaticly
+    attr_writer :auto_create_queues
   
     # Returns the queue constrains as a hash. The hash has the following structure:
     #  {
@@ -59,18 +64,17 @@ module FreeMessageQueue
   
     # setup the queue manager using the configuration from the configuration
     # file (which is basically a hash)
-    def initialize(config)
+    def initialize()
       @queue = {}
-      @config = config
       @queue_constraints = {}
       @log = FreeMessageQueue.logger
-      setup_queue_manager()
+      @auto_create_queues = true
     end
     
     # returns if the creation of queues should be done on demand
     # (if someone sends a post to a queue)
     def auto_create_queues?
-      @config["auto-create-queues"]
+      @auto_create_queues == true
     end
    
     # Create a queue (<em>name</em> => <em>path</em>). The path must contain a leading "/" and a 3 character name
@@ -94,6 +98,14 @@ module FreeMessageQueue
       }
       
       @queue[name]
+    end
+    
+    # create a queue using a block. The block can be used to set configuration
+    # options for the queue
+    def setup_queue(queue_class = DEFAULT_QUEUE_CLASS, &configure_queue)   
+      queue_settings = OpenStruct.new
+      configure_queue.call(queue_settings)
+      create_queue_from_config(queue_class, queue_settings.marshal_dump)
     end
    
     # Delete the queue by name (path)
@@ -132,7 +144,7 @@ module FreeMessageQueue
       unless @queue[name]
         # only auto create queues if it is configured
         if auto_create_queues?
-            create_queue(name) 
+          create_queue(name) 
         else
           raise QueueManagerException.new("[QueueManager] There is no queue '#{name}'", caller)
         end
@@ -180,61 +192,54 @@ module FreeMessageQueue
       !queue[name].nil?
     end
     
+    # setup a this queue manager block need to be passed
+    def setup(&config)
+      config.call(self)
+    end
+    
+  private
+  
     # create a queue from a configuration hash.
-    # The <em>queue_name</em> is just for debugging and organizing the queue.
     # The <em>queue_config</em> contains the following parameter:
     # * path: the path to the queue (with leading "/" and 3 characters at minimum) e.g. "/test_queue"
-    # * [optional] max-size: the maximum size e.g. "10mb", "100kb", "2gb" or (black or -1) for infinite
-    # * [optional] max-messages: the maximim messages that can be in the queue e.g. 1500 or (black or -1) for infinite
-    # * [optional] class: the class that implements this queue e.g. FreeMessageQueue::SystemQueue
+    # * [optional] max_size: the maximum size e.g. "10mb", "100kb", "2gb" or (black or -1) for infinite
+    # * [optional] max_messages: the maximim messages that can be in the queue e.g. 1500 or (black or -1) for infinite
     # All other parameter will be send to the queue directly using a naming convention. So if you have the extra parameter
-    #  expire-date: 1h
+    #  expire_date = "1h"
     # the QueueManager will set the expire date using this assignment 
     #  queue.expire_date = "1h"
     # therefore your queue must implement this method
     #  def expire_date=(time)
     #    @expires_after = parse_seconds(time)
     #  end
-    def create_queue_from_config(queue_name, queue_config)
-      @log.debug("[QueueManager] setup queue from config '#{queue_name}'")
-
+    def create_queue_from_config(queue_class, queue_config)
       # path need to be specified
-      raise QueueManagerException.new("[QueueManager] There is now path specified for queue '#{queue_name}'", caller) if queue_config["path"].nil?
-      path = queue_config["path"]
-      queue_config.delete "path"
+      raise QueueManagerException.new("[QueueManager] There is now path specified for queue", caller) if queue_config[:path].nil?
+      path = queue_config[:path]
+      queue_config.delete :path
+      
+      @log.debug("[QueueManager] setup queue from config '#{path}'")
 
       # set max size parameter -- this parameter is optional
-      max_size = str_bytes(queue_config["max-size"])
+      max_size = str_bytes(queue_config[:max_size])
       max_size = INFINITE if max_size.nil? || max_size <= 0
-      queue_config.delete "max-size"
+      queue_config.delete :max_size
 
       # set max messages parameter -- this parameter is optional
-      max_messages = queue_config["max-messages"].to_i
+      max_messages = queue_config[:max_messages].to_i
       max_messages = INFINITE if max_messages.nil? || max_messages <= 0
-      queue_config.delete "max-messages"
+      queue_config.delete :max_messages
 
-      # set class parameter -- this parameter is optional
-      default_class = queue_config["class"]
-      puts default_class
-      default_class = eval(default_class) unless default_class.nil?
-      queue_config.delete "class"
-
-      if default_class.nil?
-        queue = create_queue(path, max_messages, max_size)
-      else
-        queue = create_queue(path, max_messages, max_size, default_class)
-      end
+      queue = create_queue(path, max_messages, max_size, queue_class)
 
       if queue_config.size > 0
-        @log.debug("[QueueManager] Configure addional parameters for queue '#{queue_name}'; parameter: #{queue_config.inspect}")
-        for parameter in queue_config.keys
-          method_name = parameter.gsub("-", "_")
-          queue.send(method_name + "=", queue_config[parameter])
+        @log.debug("[QueueManager] Configure addional parameters for queue '#{path}'; parameter: #{queue_config.inspect}")
+        for method_name in queue_config.keys
+          queue.send(method_name.to_s + "=", queue_config[method_name])
         end
       end
     end
-    
-  private
+  
     # Retuns count of bytes to a expression with kb, mb or gb
     # e.g 10kb will return 10240
     def str_bytes(str)
@@ -249,18 +254,6 @@ module FreeMessageQueue
           bs = INFINITE
       end
       bs
-    end
-    
-    # Create the queues that are defined in the configuration
-    def setup_queue_manager
-      if @config.nil?
-        raise QueueManagerException.new("[QueueManager] there is no queue manager configuration" , caller)
-      else
-        @log.info("[QueueManager] Create defined queues (#{@config["defined-queues"].size})")
-        for defined_queue in @config["defined-queues"]
-          create_queue_from_config(defined_queue[0], defined_queue[1])
-        end
-      end
     end
   end
 end
