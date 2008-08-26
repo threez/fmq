@@ -5,20 +5,19 @@ class TestQueueManager < Test::Unit::TestCase
   DEFAULT_QUEUE_NAME = "/fmq_test/test1"
   
   def setup
-    FreeMessageQueue.create_logger
-    FreeMessageQueue.set_log_level "fatal"
+    FreeMessageQueue.log_level "fatal"
+
+    @queue_manager = FreeMessageQueue::QueueManager.new()
     
-    @working_conf = {
-      "auto-create-queues" => false,
-      "defined-queues" => {
-        "test-queue-1" => {
-          "path" => DEFAULT_QUEUE_NAME,
-          "max-messages" => 100,
-          "max-size" => "100mb"
-        }
-      }
-    }
-    @queue_manager = FreeMessageQueue::QueueManager.new(@working_conf)
+    @queue_manager.setup do |qm|
+      qm.auto_create_queues = false
+      
+      qm.setup_queue do |q|
+        q.path = DEFAULT_QUEUE_NAME
+        q.max_messages = 100
+        q.max_size = "100mb"
+      end
+    end
   end
   
   def test_config
@@ -26,17 +25,11 @@ class TestQueueManager < Test::Unit::TestCase
     constraints = { :max_messages => 100, :max_size => 104857600 }
     assert_equal constraints, @queue_manager.queue_constraints[DEFAULT_QUEUE_NAME]
     
-    # the queue manager can't be created without config
-    assert_raise(FreeMessageQueue::QueueManagerException) {
-      FreeMessageQueue::QueueManager.new(nil)
-    }
-    
     # check that the simple config will work
-    simple = {
-      "auto-create-queues" => true,
-      "defined-queues" => {}
-    }
-    FreeMessageQueue::QueueManager.new(simple)
+    FreeMessageQueue::QueueManager.new()
+    @queue_manager.setup do |qm|
+      qm.auto_create_queues = false
+    end
   end
   
   def test_poll_and_get
