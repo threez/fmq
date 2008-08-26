@@ -1,3 +1,15 @@
+== 0.3.0 2008-08-06
+
+* 2 minor changes:
+  * replaced the mongrel handler by rack so that it can be used by many servers and in different configurations
+  * removed the old yml style config and replaced it by a new rubyish config style (see config.ru)
+* 5 tiny changes:
+  * seperated the admin interface handler
+  * removed the configuration stuff  that belonged to the old yml file from queue_manager and boot classes
+  * removed that the command fmq can be used to start the server (rackup can be used by now)
+  * admin interface is now seperated to several files (javascript, css, ...)
+  * admin interface is validated by W3C validatior for xhtml strict and css 2.1 compliance
+
 == 0.2.0 2008-06-28
 
 * 3 minor enhancements:

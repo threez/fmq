@@ -19,9 +19,8 @@
 #
 # == Command line options
 #
-#  usage: /usr/bin/fmq [create <project_name>]
+#  usage: /usr/bin/fmq create <project_name>
 #
-# * Invocation without parameter will start server
 # * Invocation with parameter <em>create</em> *project_name* 
 #   will create a project folder with the name *project_name*  
 begin
@@ -32,12 +31,10 @@ rescue LoadError
 end
 
 if File.basename($0) == "fmq" then
-  if ARGV.size == 0 then
-    FreeMessageQueue::Boot.start_server
-  elsif ARGV.size == 2 && ARGV[0] == "create" then 
+  if ARGV.size == 2 && ARGV[0] == "create" then 
     FreeMessageQueue::Boot.create_project(ARGV[1])
   else
-    puts "usage: #{$0} [create <project_name>]"
+    puts "usage: #{$0} create <project_name>"
   end
 end
 

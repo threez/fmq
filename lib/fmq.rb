@@ -22,12 +22,7 @@ Dir.glob(File.dirname(__FILE__) + "/fmq/queues/*.rb").each do |file|
   require file
 end
 
-# load all local queues (from project directory)
-Dir.glob("queues/*.rb").each do |file|
-  require file
-end
-
 # load all parts in right order
-['boot', 'client'].each do |file|
+['boot', 'admin', 'client', 'server'].each do |file|
   require File.dirname(__FILE__) + "/fmq/#{file}"
 end
