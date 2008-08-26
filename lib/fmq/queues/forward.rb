@@ -49,7 +49,7 @@ module FreeMessageQueue
     # you can add as may queues as you want
     # but seperate them with a space char
     def forward_to=(urls)
-      @forwards = urls.split " "
+      @forwards = urls
     end
   end
 end
