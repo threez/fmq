@@ -1,240 +1,50 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
-	    <title>Free Message Queue</title>
-		<LINK REL="SHORTCUT ICON" HREF="images/logo.png">
-		<script type="text/javascript" src="prototype.js"></script>
-		<script type="text/javascript">
-			var ADMIN_QUEUE_PATH = '/admin/queue';
-			
-			function toggle_element (element_id) {
-				$(element_id).disabled = !$(element_id).disabled;
-			}
-		
-			function updateSelects() {
-				new Ajax.Request(ADMIN_QUEUE_PATH, {
-					method:'GET',
-					onSuccess: function(transport) {
-					  queues = transport.responseText.evalJSON();
-					  fillSelectWithQueuePaths("select-message-receive", queues);
-					  fillSelectWithQueuePaths("select-message-send", queues);
-					  fillTableSpaceWithQueues("queue-table-space", queues);
-					},
-					onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
-				});
-			}
-			
-			function updateTable() {
-				new Ajax.Request(ADMIN_QUEUE_PATH, {
-					method:'GET',
-					onSuccess: function(transport) {
-					  queues = transport.responseText.evalJSON();
-					  fillTableSpaceWithQueues("queue-table-space", queues);
-					},
-					onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
-				});
-			}
-			
-			function fillTableSpaceWithQueues(table_space, queues) {
-				var table = '<table style="width: 100%; border: 1px solid #292C44">' +
-					'<tr><th>Queue name</th><th>queue size</th><th>messages in queue</th><th>options</th></tr>';	
-					
-				queues.each ( function (queue) {
-					table += "<tr><td>" + queue[0] + "</td><td>" + queue[1] + "/" + queue[2] +"</td><td>" + queue[3] + "/" + 
-					queue[4] +'</td><td><input type="button" value="delete" onClick="deleteQueue(\'' + queue[0] + '\');"/></td></tr>';
-				});
-					
-				table += '</table>';
-
-				$(table_space).innerHTML = table;
-			}
-		
-			function fillSelectWithQueuePaths(select_id, queues) {
-				// remove all current
-				while ($(select_id).hasChildNodes()) {
-					$(select_id).removeChild($(select_id).lastChild);
-				}
-				
-				queues.each ( function (queue) {
-					elem = document.createElement("option");
-					elem.label = elem.value = elem.text = queue[0]; 
-					$(select_id).appendChild(elem);
-				});
-			}
-		
-			function getMessageFromQueue(button_id, select_id, output_id) {	
-				new Ajax.Request($(select_id).value, {
-					method:'GET',
-					onLoading: function(transport) {
-					  toggle_element(button_id);
-					},
-					onSuccess: function(transport) {
-					  if (transport.status == 200) {
-					  	$(output_id).innerHTML = transport.responseText;
-					  	updateTable();
-					  } else {
-                        alert("There is no message in the queue");
-						$(output_id).innerHTML = " == NO MESSAGE IN THE QUEUE ==";
-                      }
-					  toggle_element(button_id);
-					},
-					onFailure: function(transport){ 
-					  alert(transport.getHeader("ERROR"));
-					  toggle_element(button_id);
-					}
-				});
-			}
-
-			function sendMessageToQueue(button_id, select_id, input_id) {	
-				new Ajax.Request($(select_id).value, {
-					method:'POST',
-					postBody: $(input_id).value,
-					onLoading: function(transport) {
-					  toggle_element(button_id);
-					},
-					onSuccess: function(transport) {
-					  updateTable();
-					  toggle_element(button_id);
-					},
-					onFailure: function(transport) { 
-					  alert(transport.getHeader("ERROR"));
-					  toggle_element(button_id);
-					}
-				});
-			}
-			
-			function createQueue() {	
-				var config = {
-					"path": "/" + $("queue-create-path").value,
-					"max-messages": parseInt($("queue-create-max-messages").value),
-					"max-size": $("queue-create-size").value
-				}
-
-				new Ajax.Request(ADMIN_QUEUE_PATH, {
-					method: 'POST',
-					postBody: "_method=create&data=" + Object.toJSON(config),
-					onSuccess: function(transport) {
-					  updateSelects();
-					  updateTable();
-					  alert("Queue /" + $("queue-create-path").value + " created successfully");
-					},
-					onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
-				});
-			}
-			
-			function deleteQueue(path) {
-				new Ajax.Request(ADMIN_QUEUE_PATH, {
-					method: 'POST',
-					postBody: "_method=delete&path=" + path,
-					onSuccess: function(transport) {
-					  updateSelects();
-					  updateTable();
-					  alert("Queue " + path + " successfully deleted");
-					},
-					onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
-				});
-			}
-		</script>
-		<style type="text/css" id="test">
-		    body {
-				background-color: #687486;
-				font-family: arial;
-				font-size: 1em;
-			}
-			img {
-				border: 0px;
-			}
-			a {
-				color: #C7DAD1;
-			}
-			#container {
-				margin: 10px auto;
-				background-color: #C7DAD1;
-				width: 800px;
-				border: 1px solid #292C44;
-			}
-			#header {
-				background-color: #2F3B4E; 
-				padding: 20px 20px 20px 30px;
-				color: #C7DAD1;
-			}
-			#logo {
-				width: 64px;
-				height: 64px;
-				float: right;
-				margin-top: 20px;
-				margin-right: 20px;
-				background-image: url(images/logo.png);
-			}
-			#content {
-				padding: 10px;
-			}
-			#content h1 {
-				font-size: 1.4em;
-			}
-			#footer {
-				color: #C7DAD1;
-				background-color: #2F3B4E;
-				text-align: center;
-				padding: 10px;
-				font-weight: bold;
-			}
-			.block-text {
-				font-family:"Courier New", Courier, monospace;
-				border: 1px dashed #C7DAD1;
-				background-color: #000;
-				color: #C7DAD1;
-				padding: 5px;
-				font-size: 0.8em;
-			}
-			th {
-				text-align: left;
-				background-color: #2F3B4E; 
-				color: #C7DAD1;
-				padding: 5px;
-			}
-			td {
-				text-align: center;
-				padding: 5px;
-			}
-		</style>
+      <title>Free Message Queue</title>
+      <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	    <link rel="shortcut icon" href="images/logo.png" />
+	    <link href="stylesheets/application.css" rel="stylesheet" type="text/css" />
+	    <script type="text/javascript" src="javascript/prototype.js"></script>
+	    <script type="text/javascript" src="javascript/application.js"></script>
 	</head>
-	<body onLoad="updateSelects(); updateTable();">
-	    <div id="container">
-			<div id="header">
-				<div id="logo"></div>
-			    <h1>Free Message Queue - Admin Interface</h1>
-				<h3>the easy http queue system for ruby and all others ...</h3>
-			</div>
-			<div id="content">
-				<!-- LIST QUEUE -->
-				<h1>Queues</h1>
-				<p><div id="queue-table-space"></div></p>
-				<input type="button" value="update" onClick="updateTable();" />
-				
-				<!-- CREATE QUEUE -->
-				<h1>Create queue</h1>
-				<p>Queue path: /<input id="queue-create-path" /></p>
-				<p>Maximum messages: <input id="queue-create-max-messages" value="1000000" /></p>
-				<p>Maximum queue size in kb, mb, gb: <input id="queue-create-size" value="100mb" /></p>
-				<input type="button" value="create" onClick="createQueue()" />
-				
-				<!-- SEND MESSAGE TO QUEUE -->
-				<h1>Send message to queue</h1>
-				<p>Queue path: <select id="select-message-send"></select></p>
-				<p><textarea id="queue-message-send" class="block-text" style="width: 780px; height: 100px;"></textarea></p>
-				<input id="send-message-queue-button" type="button" value="send" 
-					onClick="sendMessageToQueue('send-message-queue-button', 'select-message-send', 'queue-message-send');"/>
-				
-				<!-- GET MESSAGE FROM QUEUE -->
-				<h1>Get a message from queue</h1>
-				<p>Queue path: <select id="select-message-receive"></select></p>
-				<pre id="queue-message-get" class="block-text"></pre>
-				<input id="get-message-queue-button" type="button" value="get one" 
-					onClick="getMessageFromQueue('get-message-queue-button', 'select-message-receive', 'queue-message-get');"/>
-			</div>
-			<div id="footer">
-				This interface is based on <a href="http://www.prototypejs.org/">prototype</a>
-			</div>
-		</div>
+	<body onload="updateSelects(); updateTable();">
+    <div id="container">
+		  <div id="header">
+			  <div id="logo"></div>
+		    <h1>Free Message Queue - Admin Interface</h1>
+			  <h3>the easy http queue system for ruby and all others ...</h3>
+		  </div>
+		  <div id="content">
+			  <!-- LIST QUEUE -->
+			  <h1>Queues</h1>
+			  <p id="queue-table-space"></p>
+			  <input type="button" value="update" onclick="updateTable();" />
+			
+			  <!-- CREATE QUEUE -->
+			  <h1>Create queue</h1>
+			  <p>Queue path: /<input id="queue-create-path" /></p>
+			  <p>Maximum messages: <input id="queue-create-max-messages" value="1000000" /></p>
+			  <p>Maximum queue size in kb, mb, gb: <input id="queue-create-size" value="100mb" /></p>
+			  <input type="button" value="create" onclick="createQueue()" />
+			
+			  <!-- SEND MESSAGE TO QUEUE -->
+			  <h1>Send message to queue</h1>
+			  <p>Queue path: <select id="post-queue-name"><option>NONE</option></select></p>
+			  <p><textarea id="post-body" class="block-text" rows="5" cols="80" style="width: 780px; height: 100px;"></textarea></p>
+			  <input id="post-button" type="button" value="send" 
+				  onclick="sendMessageToQueue('post-button', 'post-queue-name', 'post-body');"/>
+			
+			  <!-- GET MESSAGE FROM QUEUE -->
+			  <h1>Get a message from queue</h1>
+			  <p>Queue path: <select id="get-queue-name"><option>NONE</option></select></p>
+			  <pre id="get-body" class="block-text"></pre>
+			  <input id="get-button" type="button" value="get one" 
+				  onclick="getMessageFromQueue('get-button', 'get-queue-name', 'get-body');"/>
+		  </div>
+		  <div id="footer">
+			  This interface is based on <a href="http://www.prototypejs.org/">prototype</a>
+		  </div>
+	  </div>
 	</body>
 </html>
