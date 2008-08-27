@@ -24,39 +24,33 @@ queue_manager.setup do |qm|
   #        define there url and constraints here
   # =====================================================
   
-  qm.setup_queue do |q|
-    # the path to the queue e.g. /app1/myframe/test1
-    # means http://localhost:5884/app1/myframe/test1
-    # this parameter is not optional
-    q.path = "/fmq_test/test1"
+  # the path to the queue e.g. /app1/myframe/test1
+  # means http://localhost:5884/app1/myframe/test1
+  # this parameter is not optional
+  qm.setup_queue "/fmq_test/test1" do |q|
     # this defines the maximum count of messages that 
     # can be in the queue, if the queue is full every
     # new message will be rejected with a http error
     # this parameter is optional if you don't specify
     # a max value the queue size depends on your system
-    q.max_messages = 1000000
+    q.max_messages = 1_000_000
     # this optional to and specifys the max content size
     # for all data of a queue
     # valid extensions are kb, mb, gb
-    q.max_size = "10kb"
+    q.max_size = 10.kb
   end
   
   # if you want you can specify the class of the queue
   # this is interessting if you write your own queues
-  qm.setup_queue FreeMessageQueue::LoadBalancedQueue do |q|
-    q.path = "/fmq_test/test2"
-  end
+  qm.setup_queue "/fmq_test/test2", FreeMessageQueue::LoadBalancedQueue
   
   # if you have special queues include put them into the queues
   # folder and and use them (this MyTestQueue is places in queues/mytest.rb)
-  qm.setup_queue MyTestQueue do |q|
-    q.path = "/fmq_test/test3"
-  end
+  qm.setup_queue "/fmq_test/test3", MyTestQueue
   
   # this is a forwarding queue wich forwards one message
   # to some other queues
-  qm.setup_queue FreeMessageQueue::ForwardQueue do |q|
-    q.path = "/fmq_test/forward_to_1_and_2"
+  qm.setup_queue "/fmq_test/forward_to_1_and_2", FreeMessageQueue::ForwardQueue do |q|
     # you can add as may queues as you want
     # but seperate them with a space char
     q.forward_to = ["/fmq_test/test1", "/fmq_test/test2"]
