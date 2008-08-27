@@ -26,11 +26,43 @@ class TestMessage < Test::Unit::TestCase
 end
 
 class BaseQueue < Test::Unit::TestCase
-  def test_initialize
-    manager = "pseudo manager"
-    queue = FreeMessageQueue::BaseQueue.new(manager)
-    assert_equal 0, queue.size
-    assert_equal 0, queue.bytes
-    assert_equal manager, queue.manager
+  def setup
+    @manager = FreeMessageQueue::QueueManager.new()
+    
+    @manager.setup do |m|
+      @queue1 = m.setup_queue "/dummy1"
+      @queue2 = m.setup_queue "/dummy2" do |q|
+        q.max_messages = 100
+        q.max_size = 100.kb
+      end
+    end
+  end
+  
+  def test_creating
+    assert_equal 0, @queue1.size
+    assert_equal 0, @queue1.bytes
+    assert_equal FreeMessageQueue::BaseQueue::INFINITE, @queue1.max_messages
+    assert_equal FreeMessageQueue::BaseQueue::INFINITE, @queue1.max_size
+    assert_equal @manager, @queue1.manager
+  end
+  
+  def test_constraint_max_messages
+    100.times do |v|
+      @queue2.put(new_msg("test"))
+    end
+    
+    assert_raise(FreeMessageQueue::QueueException) do
+      @queue2.put(new_msg("test"))
+    end
+  end
+  
+  def test_constraint_max_size
+    11.times do |v|
+      @queue2.put(new_msg("X" * 9.kb))
+    end
+    
+    assert_raise(FreeMessageQueue::QueueException) do
+      @queue2.put(new_msg("X" * 10.kb))
+    end
   end
 end

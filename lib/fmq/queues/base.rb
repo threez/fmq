@@ -40,7 +40,7 @@ module FreeMessageQueue
   end
   
   # All queue exceptions are raised using this class
-  class QueueManagerException < Exception
+  class QueueException < Exception
     attr_accessor :message, :backtrace
   
     # Create exception with message and backtrace (if needed)
@@ -67,7 +67,7 @@ module FreeMessageQueue
   
     attr_reader :bytes, # the amount of space that is used by all messages in the queue
       :size # the size / depp of the queue = count of messages
-    attr_writer :max_messages, # the max count of messages that can be in the queue
+    attr_accessor :max_messages, # the max count of messages that can be in the queue
       :max_size # the max size (bytes) of messages that can be in the queue
     
     def initialize(manager)
@@ -111,7 +111,7 @@ module FreeMessageQueue
     # throws an exception if a constraint failed
     def check_max_size_constraint(message)
       if @max_size != INFINITE && (@max_size < self.bytes + message.bytes)
-        raise QueueException.new("[Queue] The queue '#{name}' is full, max amount of space (#{@max_size} bytes) is exceeded", caller)
+        raise QueueException.new("[Queue] The queue is full, max amount of space (#{@max_size} bytes) is exceeded", caller)
       end
     end
     
@@ -119,7 +119,7 @@ module FreeMessageQueue
     # throws an exception if a constraint failed
     def check_max_messages_constraint(message)
       if @max_messages != INFINITE && (@max_messages < self.size + 1)
-        raise QueueException.new("[Queue] The queue '#{name}' is full, max amount of messages (#{@max_messages}) is exceeded", caller)
+        raise QueueException.new("[Queue] The queue is full, max amount of messages (#{@max_messages}) is exceeded", caller)
       end
     end
   end
