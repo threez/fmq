@@ -144,7 +144,7 @@ module FreeMessageQueue
 
     # Returns the names (paths) of all queues managed by this queue manager
     def queues
-      @queue.keys
+      @queues.keys
     end
     
     # Is the name (path) of the queue in use allready

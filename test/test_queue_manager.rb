@@ -16,6 +16,9 @@ class TestQueueManager < Test::Unit::TestCase
         q.max_messages = 100
         q.max_size = 100.mb
       end
+      
+      qm.setup_queue "/second_test_queue"
+      qm.setup_queue "/third_test_queue"
     end
   end
   
@@ -24,6 +27,12 @@ class TestQueueManager < Test::Unit::TestCase
     FreeMessageQueue::QueueManager.new()
     @queue_manager.setup do |qm|
       qm.auto_create_queues = false
+    end
+    
+    # check if all queues are available
+    assert_equal 3, @queue_manager.queues.size
+    [DEFAULT_QUEUE_NAME, "/second_test_queue", "/third_test_queue"].each do |e|
+      assert @queue_manager.queues.include? e
     end
   end
   
