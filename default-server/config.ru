@@ -1,4 +1,8 @@
-require "fmq"
+begin
+  require File.dirname(__FILE__) + '/../lib/fmq'
+rescue LoadError
+  require "fmq"
+end
 
 # load all local queues (from project directory)
 Dir.glob("queues/*.rb").each { |f| require f }
