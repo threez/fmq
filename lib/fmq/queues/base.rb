@@ -66,8 +66,8 @@ module FreeMessageQueue
     INFINITE = -1
   
     attr_reader :bytes, # the amount of space that is used by all messages in the queue
-      :size # the size / depp of the queue = count of messages
-    attr_accessor :max_messages, # the max count of messages that can be in the queue
+      :size, # the size / depp of the queue = count of messages
+      :max_messages, # the max count of messages that can be in the queue
       :max_size # the max size (bytes) of messages that can be in the queue
     
     def initialize(manager)
@@ -98,6 +98,16 @@ module FreeMessageQueue
       @size -= 1
       @bytes -= message.bytes
       return message
+    end
+    
+    # check that one can only set valid constraints
+    def max_messages=(val)
+      val >= 0 ? BaseQueue::INFINITE : val
+    end
+    
+    # check that one can only set valid constraints
+    def max_size=(val)
+      val >= 0 ? BaseQueue::INFINITE : val
     end
     
     # check all constraints that are available.
