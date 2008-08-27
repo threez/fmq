@@ -37,6 +37,8 @@ module FreeMessageQueue
     def put(message)
       return false if message == nil
       
+      add_message(message) # update stats and check constraints
+      
       # insert at end of list
       if @first_message == nil
         # first and last item are same if there is no item to the queue
@@ -46,7 +48,7 @@ module FreeMessageQueue
         @last_message = @last_message.next = message
       end
       
-      add_message(message.bytes) # update stats
+      return true
     end
  
     # Return an message from the queue or nil if the queue is empty
@@ -59,9 +61,7 @@ module FreeMessageQueue
         @first_message = message.next
         @last_message = nil if @first_message.nil?
         message.next = nil # unlink the message
-        remove_message(message.bytes) # update stats
-        
-        return message
+        remove_message(message) # update stats
       else
         return nil
       end

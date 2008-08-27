@@ -18,6 +18,21 @@
 # 
 require "ostruct"
 
+# add kb, mb and gb methods for easy use in the config file
+class Fixnum
+  def kb
+    self * 1024
+  end
+  
+  def mb
+    self.kb * 1024
+  end
+  
+  def gb
+    self.mb * 1024
+  end
+end
+
 module FreeMessageQueue
   # All queue manager exceptions are raised using this class
   class QueueManagerException < Exception
@@ -45,18 +60,6 @@ module FreeMessageQueue
     
     # <b>true</b> to let the queue manager create a queue automaticly
     attr_writer :auto_create_queues
-  
-    # Returns the queue constrains as a hash. The hash has the following structure:
-    #  {
-    #    :max_size => "100mb",
-    #    :max_messages => 1000
-    #  }
-    attr_reader :queue_constraints
-    
-    # This value is used to decribe that a constraint has no limit e.g.
-    #  :max_messages => INFINITE
-    # means that there is no limitation for messages
-    INFINITE = -1
     
     # this is the default queue class if no other is specified this
     # class will be created when setting up a queue
@@ -66,7 +69,6 @@ module FreeMessageQueue
     # file (which is basically a hash)
     def initialize()
       @queue = {}
-      @queue_constraints = {}
       @log = FreeMessageQueue.logger
       @auto_create_queues = true
     end
@@ -76,36 +78,17 @@ module FreeMessageQueue
     def auto_create_queues?
       @auto_create_queues == true
     end
-   
-    # Create a queue (<em>name</em> => <em>path</em>). The path must contain a leading "/" and a 3 character name
-    # at minimum. Exceptions will be raised if the queue allready exists.
-    def create_queue(name, max_messages = INFINITE, max_size = INFINITE, default_class = DEFAULT_QUEUE_CLASS)
-      # path must begin with /
-      raise QueueManagerException.new("[QueueManager] Leading / in path '#{name}' missing", caller) if name[0..0] != "/"
-      
-      # path must have a minimus lenght of 3 character
-      raise QueueManagerException.new("[QueueManager] The queue path '#{name}' is to short 3 character is minimum", caller) if name.size - 1 < 3
-      
-      # don't create a queue twice
-      raise QueueManagerException.new("[QueueManager] The queue '#{name}' allready exists", caller) if queue_exists? name
-    
-      @log.info("[QueueManager] Create queue '#{name}' {type: #{default_class}, max_messages: #{max_messages}, max_size: #{max_size}}")
-
-      @queue[name] = default_class.new(self)
-      @queue_constraints[name] = {
-        :max_messages => max_messages,
-        :max_size => max_size
-      }
-      
-      @queue[name]
-    end
     
     # create a queue using a block. The block can be used to set configuration
     # options for the queue
-    def setup_queue(queue_class = DEFAULT_QUEUE_CLASS, &configure_queue)   
-      queue_settings = OpenStruct.new
-      configure_queue.call(queue_settings)
-      create_queue_from_config(queue_class, queue_settings.marshal_dump)
+    def setup_queue(path, queue_class = DEFAULT_QUEUE_CLASS)
+      check_queue_name(path)
+      queue_object = queue_class.new(self)
+      if block_given? then
+        yield queue_object
+      end
+      @log.info("[QueueManager] Create queue '#{name}' {type: #{default_class}, max_messages: #{max_messages}, max_size: #{max_size}}")
+      return queue_object
     end
    
     # Delete the queue by name (path)
@@ -141,6 +124,7 @@ module FreeMessageQueue
     # will be generated if there isn't a queue with the passed name (path). Otherwise
     # it will raise a QueueManagerException if the passed queue doesn't exists.
     def put(name, message)
+      # check for auto createing queues if they are not available
       unless @queue[name]
         # only auto create queues if it is configured
         if auto_create_queues?
@@ -148,18 +132,6 @@ module FreeMessageQueue
         else
           raise QueueManagerException.new("[QueueManager] There is no queue '#{name}'", caller)
         end
-      end
-      
-      # check max size constraints
-      if @queue_constraints[name][:max_size] != INFINITE &&
-        @queue_constraints[name][:max_size] < queue[name].bytes + message.bytes
-        raise QueueManagerException.new("[QueueManager] The queue '#{name}' is full, max amount of space (#{@queue_constraints[name][:max_size]}) is exceeded", caller)
-      end
-      
-      # check max messages constraints
-      if @queue_constraints[name][:max_messages] != INFINITE &&
-        @queue_constraints[name][:max_messages] < queue[name].size + 1
-        raise QueueManagerException.new("[QueueManager] The queue '#{name}' is full, max amount of messages (#{@queue_constraints[name][:max_messages]}) is exceeded", caller)
       end
    
       @log.debug("[QueueManager] put message to queue '#{name}' with #{@queue[name].size} messages")
@@ -176,16 +148,6 @@ module FreeMessageQueue
     def queues
       @queue.keys
     end
-   
-    # Returns the size (number of messages)
-    def queue_size(name)
-      @queue[name].size
-    end
-    
-    # Returns the byte size of the queue
-    def queue_bytes(name)
-      @queue[name].bytes
-    end
     
     # Is the name (path) of the queue in use allready
     def queue_exists?(name)
@@ -197,63 +159,19 @@ module FreeMessageQueue
       config.call(self)
     end
     
-  private
-  
-    # create a queue from a configuration hash.
-    # The <em>queue_config</em> contains the following parameter:
-    # * path: the path to the queue (with leading "/" and 3 characters at minimum) e.g. "/test_queue"
-    # * [optional] max_size: the maximum size e.g. "10mb", "100kb", "2gb" or (black or -1) for infinite
-    # * [optional] max_messages: the maximim messages that can be in the queue e.g. 1500 or (black or -1) for infinite
-    # All other parameter will be send to the queue directly using a naming convention. So if you have the extra parameter
-    #  expire_date = "1h"
-    # the QueueManager will set the expire date using this assignment 
-    #  queue.expire_date = "1h"
-    # therefore your queue must implement this method
-    #  def expire_date=(time)
-    #    @expires_after = parse_seconds(time)
-    #  end
-    def create_queue_from_config(queue_class, queue_config)
-      # path need to be specified
-      raise QueueManagerException.new("[QueueManager] There is now path specified for queue", caller) if queue_config[:path].nil?
-      path = queue_config[:path]
-      queue_config.delete :path
+  private  
+    
+    # Create a queue (<em>name</em> => <em>path</em>). The path must contain a leading "/" and a 3 character name
+    # at minimum. Exceptions will be raised if the queue allready exists.
+    def check_queue_name(name)
+      # path must begin with /
+      raise QueueManagerException.new("[QueueManager] Leading / in path '#{name}' missing", caller) if name[0..0] != "/"
       
-      @log.debug("[QueueManager] setup queue from config '#{path}'")
-
-      # set max size parameter -- this parameter is optional
-      max_size = str_bytes(queue_config[:max_size])
-      max_size = INFINITE if max_size.nil? || max_size <= 0
-      queue_config.delete :max_size
-
-      # set max messages parameter -- this parameter is optional
-      max_messages = queue_config[:max_messages].to_i
-      max_messages = INFINITE if max_messages.nil? || max_messages <= 0
-      queue_config.delete :max_messages
-
-      queue = create_queue(path, max_messages, max_size, queue_class)
-
-      if queue_config.size > 0
-        @log.debug("[QueueManager] Configure addional parameters for queue '#{path}'; parameter: #{queue_config.inspect}")
-        for method_name in queue_config.keys
-          queue.send(method_name.to_s + "=", queue_config[method_name])
-        end
-      end
-    end
-  
-    # Retuns count of bytes to a expression with kb, mb or gb
-    # e.g 10kb will return 10240
-    def str_bytes(str)
-      case str
-        when /([0-9]+)kb/i
-          bs = $1.to_i * 1024 
-        when /([0-9]+)mb/i
-          bs = $1.to_i * 1024 * 1024 
-        when /([0-9]+)gb/i
-          bs = $1.to_i * 1024 * 1024 * 1024
-        else
-          bs = INFINITE
-      end
-      bs
+      # path must have a minimus lenght of 3 character
+      raise QueueManagerException.new("[QueueManager] The queue path '#{name}' is to short 3 character is minimum", caller) if name.size - 1 < 3
+      
+      # don't create a queue twice
+      raise QueueManagerException.new("[QueueManager] The queue '#{name}' allready exists", caller) if queue_exists? name
     end
   end
 end

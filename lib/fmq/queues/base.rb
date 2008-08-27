@@ -33,9 +33,25 @@ module FreeMessageQueue
       @option = {}
     end
     
-    # Aize of item in bytes
+    # Size of item in bytes
     def bytes
       @payload.size
+    end
+  end
+  
+  # All queue exceptions are raised using this class
+  class QueueManagerException < Exception
+    attr_accessor :message, :backtrace
+  
+    # Create exception with message and backtrace (if needed)
+    def initialize(message, callstack = [])
+      @message = message
+      @backtrace = callstack
+    end
+    
+    # Returns the message of the exception
+    def to_s
+      @message
     end
   end
   
@@ -43,9 +59,16 @@ module FreeMessageQueue
   class BaseQueue
     # QueueManager refrence
     attr_accessor :manager
+    
+    # This value is used to decribe that a constraint has no limit e.g.
+    #   max_messages = INFINITE
+    # means that there is no limitation for messages (by count)
+    INFINITE = -1
   
     attr_reader :bytes, # the amount of space that is used by all messages in the queue
       :size # the size / depp of the queue = count of messages
+    attr_writer :max_messages, # the max count of messages that can be in the queue
+      :max_size # the max size (bytes) of messages that can be in the queue
     
     def initialize(manager)
       @manager = manager
@@ -60,16 +83,43 @@ module FreeMessageQueue
     
   protected
   
-    # update queue size and memory usage (add one messge)
-    def add_message(bytes)
+    # update queue size and memory usage (add one message)
+    def add_message(message)
+      check_constraints_with_new(message)
+      
       @size += 1
-      @bytes += bytes
+      @bytes += message.bytes
+      return message
     end
     
-    # update queue size and memory usage (remove one messge)
-    def remove_message(bytes)
+    # update queue size and memory usage (remove one message)
+    def remove_message(message)
       @size -= 1
-      @bytes -= bytes
+      @bytes -= message.bytes
+      return message
+    end
+    
+    # check all constraints that are available.
+    # throws an exception if a constraint failed
+    def check_constraints_with_new(message)
+      check_max_size_constraint(message)
+      check_max_messages_constraint(message)
+    end
+    
+    # check if max size of messages will exceed with new message.
+    # throws an exception if a constraint failed
+    def check_max_size_constraint(message)
+      if @max_size != INFINITE && (@max_size < self.bytes + message.bytes)
+        raise QueueException.new("[Queue] The queue '#{name}' is full, max amount of space (#{@max_size} bytes) is exceeded", caller)
+      end
+    end
+    
+    # check if max count of messages will exceed with new message.
+    # throws an exception if a constraint failed
+    def check_max_messages_constraint(message)
+      if @max_messages != INFINITE && (@max_messages < self.size + 1)
+        raise QueueException.new("[Queue] The queue '#{name}' is full, max amount of messages (#{@max_messages}) is exceeded", caller)
+      end
     end
   end
 end
