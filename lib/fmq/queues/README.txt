@@ -20,8 +20,8 @@ First of all, this template is where you start.
     end
   
     def poll
-      msg = FreeMessageQueue::Message.new "Hello World", "text/plain"
-      msg.option["Time"] = Time.now
-      msg
+      FreeMessageQueue::Message.new "Hello World", "text/plain" do |m|
+    	m.option["Time"] = Time.now
+  	  end
     end
   end

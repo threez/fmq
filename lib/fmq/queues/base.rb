@@ -31,6 +31,9 @@ module FreeMessageQueue
       @created_at = created_at
       @content_type = content_type
       @option = {}
+      if block_given? then
+        yield self
+      end
     end
     
     # Size of item in bytes
