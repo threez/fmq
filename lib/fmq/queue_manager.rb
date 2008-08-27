@@ -55,9 +55,6 @@ module FreeMessageQueue
   # corresponding constraints. Every queue that is created by this
   # queue manager will get a reference (<em>manager</em>) for later use.
   class QueueManager
-    # Returns the queue that is passed otherwise nil
-    attr_reader :queue
-    
     # <b>true</b> to let the queue manager create a queue automaticly
     attr_writer :auto_create_queues
     
@@ -68,7 +65,7 @@ module FreeMessageQueue
     # setup the queue manager using the configuration from the configuration
     # file (which is basically a hash)
     def initialize()
-      @queue = {}
+      @queues = {}
       @log = FreeMessageQueue.logger
       @auto_create_queues = true
     end
@@ -87,17 +84,17 @@ module FreeMessageQueue
       if block_given? then
         yield queue_object
       end
-      @queue[path] = queue_object
+      @queues[path] = queue_object
       @log.info("[QueueManager] Create queue '#{path}' {type: #{queue_class}, max_messages: #{queue_object.max_messages}, max_size: #{queue_object.max_size}}")
       return queue_object
     end
    
     # Delete the queue by name (path)
     def delete_queue(name)
-      if @queue[name]
-        @log.info("[QueueManager] Delete queue '#{name}' with #{@queue[name].size} messages")
-        @queue[name].clear
-        @queue.delete name
+      if queue_exists? name
+        @log.info("[QueueManager] Delete queue '#{name}' with #{queue(name).size} messages")
+        queue(name).clear
+        @queues.delete name
         true
       else
         raise QueueManagerException.new("[QueueManager] There is no queue '#{name}'", caller)
@@ -106,10 +103,10 @@ module FreeMessageQueue
    
     # This returns one message from the passed queue
     def poll(name)
-      if @queue[name]
-        @log.debug("[QueueManager] Poll from queue '#{name}' with #{@queue[name].size} messages")
-        if @queue[name].respond_to? :poll
-          queue_item = @queue[name].poll
+      if queue_exists? name
+        @log.debug("[QueueManager] Poll from queue '#{name}' with #{queue(name).size} messages")
+        if queue(name).respond_to? :poll
+          queue_item = queue(name).poll
         else
           raise QueueManagerException.new("[QueueManager] You can't poll from queue '#{name}'", caller)
         end
@@ -126,7 +123,7 @@ module FreeMessageQueue
     # it will raise a QueueManagerException if the passed queue doesn't exists.
     def put(name, message)
       # check for auto createing queues if they are not available
-      unless @queue[name]
+      unless queue_exists? name
         # only auto create queues if it is configured
         if auto_create_queues?
           create_queue(name) 
@@ -135,9 +132,9 @@ module FreeMessageQueue
         end
       end
    
-      @log.debug("[QueueManager] put message to queue '#{name}' with #{@queue[name].size} messages")
-      if @queue[name].respond_to? :put
-        @queue[name].put(message)
+      @log.debug("[QueueManager] put message to queue '#{name}' with #{queue(name).size} messages")
+      if queue(name).respond_to? :put
+        queue(name).put(message)
       else
         raise QueueManagerException.new("[QueueManager] You can't put to queue '#{name}'", caller)
       end
@@ -152,12 +149,16 @@ module FreeMessageQueue
     
     # Is the name (path) of the queue in use allready
     def queue_exists?(name)
-      !queue[name].nil?
+      !queue(name).nil?
     end
     
     # setup a this queue manager block need to be passed
     def setup(&config)
       config.call(self)
+    end
+    
+    def queue(name)
+      return @queues[name]
     end
     
   private  

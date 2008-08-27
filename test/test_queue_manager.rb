@@ -41,7 +41,7 @@ class TestQueueManager < Test::Unit::TestCase
     
     # should raise a exception because of the maximum messages limitation
     i = 0
-    assert_raise(FreeMessageQueue::QueueManagerException) {
+    assert_raise(FreeMessageQueue::QueueException) {
       101.times do
         @queue_manager.put(DEFAULT_QUEUE_NAME, new_msg("XXX" * 20))
           i += 1
@@ -54,7 +54,7 @@ class TestQueueManager < Test::Unit::TestCase
     # should raise a exception because of the maximum byte size limitation
     i = 0
     two_mb_message = new_msg("X" * 1024 * 1024 * 2)
-    assert_raise(FreeMessageQueue::QueueManagerException) {
+    assert_raise(FreeMessageQueue::QueueException) {
       101.times do
         @queue_manager.put(DEFAULT_QUEUE_NAME, two_mb_message) 
         i += 1
