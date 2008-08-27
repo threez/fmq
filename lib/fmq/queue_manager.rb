@@ -87,7 +87,8 @@ module FreeMessageQueue
       if block_given? then
         yield queue_object
       end
-      @log.info("[QueueManager] Create queue '#{name}' {type: #{default_class}, max_messages: #{max_messages}, max_size: #{max_size}}")
+      @queue[path] = queue_object
+      @log.info("[QueueManager] Create queue '#{path}' {type: #{queue_class}, max_messages: #{queue_object.max_messages}, max_size: #{queue_object.max_size}}")
       return queue_object
     end
    

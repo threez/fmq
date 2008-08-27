@@ -12,19 +12,14 @@ class TestQueueManager < Test::Unit::TestCase
     @queue_manager.setup do |qm|
       qm.auto_create_queues = false
       
-      qm.setup_queue do |q|
-        q.path = DEFAULT_QUEUE_NAME
+      qm.setup_queue DEFAULT_QUEUE_NAME do |q|
         q.max_messages = 100
-        q.max_size = "100mb"
+        q.max_size = 100.mb
       end
     end
   end
   
   def test_config
-    # check constraints
-    constraints = { :max_messages => 100, :max_size => 104857600 }
-    assert_equal constraints, @queue_manager.queue_constraints[DEFAULT_QUEUE_NAME]
-    
     # check that the simple config will work
     FreeMessageQueue::QueueManager.new()
     @queue_manager.setup do |qm|
@@ -36,13 +31,13 @@ class TestQueueManager < Test::Unit::TestCase
     10.times do
       @queue_manager.put(DEFAULT_QUEUE_NAME, new_msg("XXX" * 20))
     end
-    assert_equal 10, @queue_manager.queue_size(DEFAULT_QUEUE_NAME)
+    assert_equal 10, @queue_manager.queue(DEFAULT_QUEUE_NAME).size
     i = 0
     while message = @queue_manager.poll(DEFAULT_QUEUE_NAME)
       i += 1
     end
     assert_equal 10, i
-    assert_equal 0, @queue_manager.queue_size(DEFAULT_QUEUE_NAME)
+    assert_equal 0, @queue_manager.queue(DEFAULT_QUEUE_NAME).size
     
     # should raise a exception because of the maximum messages limitation
     i = 0
@@ -52,8 +47,8 @@ class TestQueueManager < Test::Unit::TestCase
           i += 1
       end
     }
-    @queue_manager.queue[DEFAULT_QUEUE_NAME].clear
-    assert_equal 0, @queue_manager.queue_size(DEFAULT_QUEUE_NAME)
+    @queue_manager.queue(DEFAULT_QUEUE_NAME).clear
+    assert_equal 0, @queue_manager.queue(DEFAULT_QUEUE_NAME).size
     assert i = 100
     
     # should raise a exception because of the maximum byte size limitation
@@ -70,7 +65,7 @@ class TestQueueManager < Test::Unit::TestCase
   
   def test_creating_and_deleting
     url = "/XX123"
-    @queue_manager.create_queue(url)
+    @queue_manager.setup_queue url
     @queue_manager.put(url, new_msg("X_X_X_X_X_X"))
     assert_equal "X_X_X_X_X_X", @queue_manager.poll(url).payload
     @queue_manager.delete_queue(url)
