@@ -82,6 +82,16 @@ module FreeMessageQueue
       size == 0
     end
     
+    # check that one can only set valid constraints
+    def max_messages=(val)
+      val >= 0 ? BaseQueue::INFINITE : val
+    end
+    
+    # check that one can only set valid constraints
+    def max_size=(val)
+      val >= 0 ? BaseQueue::INFINITE : val
+    end
+    
   protected
   
     # update queue size and memory usage (add one message)
@@ -98,16 +108,6 @@ module FreeMessageQueue
       @size -= 1
       @bytes -= message.bytes
       return message
-    end
-    
-    # check that one can only set valid constraints
-    def max_messages=(val)
-      val >= 0 ? BaseQueue::INFINITE : val
-    end
-    
-    # check that one can only set valid constraints
-    def max_size=(val)
-      val >= 0 ? BaseQueue::INFINITE : val
     end
     
     # check all constraints that are available.
