@@ -75,6 +75,16 @@ module FreeMessageQueue
       @queues[next_put_index].put(data)
     end
     
+    # queue has infinite count
+    def max_messages
+      BaseQueue::INFINITE
+    end 
+    
+    # queue has infinite messages
+    def max_size
+      BaseQueue::INFINITE
+    end
+    
   private
     
     # next index acts like 'round robin'
