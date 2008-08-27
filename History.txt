@@ -1,4 +1,14 @@
-== 0.3.0 2008-08-06
+== 0.3.1 2008-08-27
+
+* 2 minor changes:
+  * refactored the queue manager and remove legacy code (moved constraints stuff to the base queue)
+  * refactored the setup_queue method in the configuration file (sorry you have to change your configs)
+* 3 tiny changes:
+  * default-server can now be used from within the development repository (no rund trip nessesary)
+  * added and replaced some tests for the new interface of the queue manager and the base queue
+  * one can now yield and return messages
+
+== 0.3.0 2008-08-26
 
 * 2 minor changes:
   * replaced the mongrel handler by rack so that it can be used by many servers and in different configurations

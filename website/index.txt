@@ -22,7 +22,7 @@ If you do a GET request to this url with a web browser you will receive one mess
 h2. Features
 
 * FIFO message store
-* easy setup and maintenance of system
+* easy setup and maintenance of system (rack)
 * using http for communication
 * changeable queue implementation
 * ruby client lib

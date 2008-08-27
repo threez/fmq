@@ -34,7 +34,7 @@ stores it’s internal data in an FIFO in system memory.
 == FEATURES/PROBLEMS:
 
 * FIFO message store
-* easy setup and maintenance of system
+* easy setup and maintenance of system (rack)
 * using http for communication
 * changeable queue implementation
 * ruby client lib
