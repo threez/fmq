@@ -84,12 +84,12 @@ module FreeMessageQueue
     
     # check that one can only set valid constraints
     def max_messages=(val)
-      val >= 0 ? BaseQueue::INFINITE : val
+      @max_messages = (val <= 0) ? BaseQueue::INFINITE : val
     end
     
     # check that one can only set valid constraints
     def max_size=(val)
-      val >= 0 ? BaseQueue::INFINITE : val
+      @max_size = (val <= 0) ? BaseQueue::INFINITE : val
     end
     
   protected

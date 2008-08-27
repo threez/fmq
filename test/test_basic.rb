@@ -35,14 +35,32 @@ class BaseQueue < Test::Unit::TestCase
         q.max_messages = 100
         q.max_size = 100.kb
       end
+      @queue3 = m.setup_queue "/dummy3" do |q|
+        q.max_size = 0
+        q.max_messages = -10
+      end
     end
   end
   
   def test_creating
+    # check first queue
     assert_equal 0, @queue1.size
     assert_equal 0, @queue1.bytes
     assert_equal FreeMessageQueue::BaseQueue::INFINITE, @queue1.max_messages
     assert_equal FreeMessageQueue::BaseQueue::INFINITE, @queue1.max_size
+    
+    # check 2. queue
+    assert_equal 0, @queue2.size
+    assert_equal 0, @queue2.bytes
+    assert_equal 100, @queue2.max_messages
+    assert_equal 100 * 1024, @queue2.max_size
+    
+    # check 3. queue
+    assert_equal 0, @queue3.size
+    assert_equal 0, @queue3.bytes
+    assert_equal FreeMessageQueue::BaseQueue::INFINITE, @queue3.max_messages
+    assert_equal FreeMessageQueue::BaseQueue::INFINITE, @queue3.max_size
+    
     assert_equal @manager, @queue1.manager
   end
   
