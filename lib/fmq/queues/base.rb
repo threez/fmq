@@ -74,6 +74,7 @@ module FreeMessageQueue
       @manager = manager
       @bytes = 0
       @size = 0
+      @max_size = @max_messages = INFINITE
     end
     
     # returns true if there is no message in the queue
