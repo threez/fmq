@@ -62,9 +62,10 @@ module FreeMessageQueue
           elsif request["_method"] == "create"
             # ======= CREATE QUEUE
             @log.info "[AdminInterface] create queue"
-            @manager.create_queue(request["path"], 
-              request["max_messages"].gsub("null", "-1").to_i, 
-              request["max_size"].gsub("null", "-1").to_i)
+            @manager.setup_queue request["path"] do |q|
+              q.max_messages = request["max_messages"].to_i
+              q.max_size = str_bytes request["max_size"]
+            end
             return OK
           else
             return WRONG_METHOD
@@ -81,15 +82,27 @@ module FreeMessageQueue
   
     # converts the data of one queue to json format
     def queue_to_json(queue_name)
-      constraints = @manager.queue_constraints[queue_name]
+      queue = @manager.queue(queue_name)
     
       "[\"%s\", %d, %d, %d, %d]" % [
         queue_name,
-        @manager.queue[queue_name].bytes,
-        constraints[:max_size],
-        @manager.queue[queue_name].size,
-        constraints[:max_messages],
+        queue.bytes,
+        queue.max_size,
+        queue.size,
+        queue.max_messages,
       ]
+    end
+    
+    # Retuns count of bytes to a expression with kb, mb or gb
+    # e.g 10kb will return 10240
+    def str_bytes(str)
+      case str
+        when /([0-9]+)kb/i: $1.to_i.kb
+        when /([0-9]+)mb/i: $1.to_i.mb 
+        when /([0-9]+)gb/i: $1.to_i.gb
+        else
+          BaseQueue::INFINITE
+      end
     end
   end
 end

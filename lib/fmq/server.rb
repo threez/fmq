@@ -68,8 +68,8 @@ module FreeMessageQueue
         
         @log.debug("[Server] Response to GET (200)")
         response.header["CONTENT-TYPE"] = message.content_type
-        response.header["QUEUE_SIZE"] = @queue_manager.queue_size(queue_path).to_s
-        response.header["QUEUE_BYTES"] = @queue_manager.queue_bytes(queue_path).to_s
+        response.header["QUEUE_SIZE"] = @queue_manager.queue(queue_path).size.to_s
+        response.header["QUEUE_BYTES"] = @queue_manager.queue(queue_path).bytes.to_s
         
         # send all options of the message back to the client
         if message.respond_to?(:option) && message.option.size > 0
@@ -107,8 +107,8 @@ module FreeMessageQueue
       @queue_manager.put(queue_path, message)
       
       response = Rack::Response.new([], 200)
-      response.header["QUEUE_SIZE"] = @queue_manager.queue_size(queue_path).to_s
-      response.header["QUEUE_BYTES"] = @queue_manager.queue_bytes(queue_path).to_s
+      response.header["QUEUE_SIZE"] = @queue_manager.queue(queue_path).size.to_s
+      response.header["QUEUE_BYTES"] = @queue_manager.queue(queue_path).bytes.to_s
       return response
     end
     
@@ -117,8 +117,8 @@ module FreeMessageQueue
       @log.debug("[Server] Response to HEAD (200)")
       
       response = Rack::Response.new([], 200)
-      response.header["QUEUE_SIZE"] = @queue_manager.queue_size(queue_path).to_s
-      response.header["QUEUE_BYTES"] = @queue_manager.queue_bytes(queue_path).to_s
+      response.header["QUEUE_SIZE"] = @queue_manager.queue(queue_path).size.to_s
+      response.header["QUEUE_BYTES"] = @queue_manager.queue(queue_path).bytes.to_s
       return response
     end
     
