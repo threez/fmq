@@ -7,9 +7,6 @@ end
 # load all local queues (from project directory)
 Dir.glob("queues/*.rb").each { |f| require f }
 
-# setup log level of free message queue
-FreeMessageQueue.log_level("info")
-
 # =====================================================
 #        create and configure the queue manager
 # =====================================================

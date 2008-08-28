@@ -5,8 +5,6 @@ class TestQueueManager < Test::Unit::TestCase
   DEFAULT_QUEUE_NAME = "/fmq_test/test1"
   
   def setup
-    FreeMessageQueue.log_level "info"
-
     @queue_manager = FreeMessageQueue::QueueManager.new(false) do      
       setup_queue DEFAULT_QUEUE_NAME do |q|
         q.max_messages = 100

@@ -29,35 +29,27 @@ module FreeMessageQueue
   # free message queue, so that it is simple to access
   # the logger from somewhere in the project 
   def self.logger
-    $FMQ_GLOBAL_LOGGER ||= create_logger
+    $FMQ_GLOBAL_LOGGER ||= FreeMessageQueue.create_logger
   end
   
   # This method creates the logger instance once (even if it is called twice).
+  # it is by default on fatal
   def self.create_logger(log_to = STDOUT)
     $FMQ_GLOBAL_LOGGER ||= Logger.new(log_to)
+    FreeMessageQueue.log_level(:fatal)
+    return $FMQ_GLOBAL_LOGGER
   end
   
   # This method sets the log level of the fmq logger
   # the level must be a string (either downcase or upcase)
   # that contains one of the following levels:
-  # * FATAL => Server side errors
-  # * ERROR => Server side error backtraces
-  # * WARN  => Client side errors
-  # * INFO  => Setup information (config stuff etc.)
-  # * DEBUG => All operations of the queue manager and others
+  # * :fatal => Server side errors
+  # * :error => Server side error backtraces
+  # * :warn  => Client side errors
+  # * :info  => Setup information (config stuff etc.)
+  # * :debug => All operations of the queue manager and others
   def self.log_level(level)
-    case level
-      when /fatal/i
-        FreeMessageQueue.logger.level = Logger::FATAL
-      when /error/i
-        FreeMessageQueue.logger.level = Logger::ERROR
-      when /warn/i
-        FreeMessageQueue.logger.level = Logger::WARN
-      when /info/i
-        FreeMessageQueue.logger.level = Logger::INFO
-      when /debug/i
-        FreeMessageQueue.logger.level = Logger::DEBUG
-    end
+    FreeMessageQueue.logger.level = eval("Logger::#{level.to_s.upcase}")
     FreeMessageQueue.logger.debug "[Logger] set log level to #{level}"
   end
   
