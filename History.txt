@@ -1,3 +1,14 @@
+== 0.3.2 2008-08-28
+
+* 3 minor changes:
+  * changed the way of the queue manager  setup
+  * updated rdoc, readme and website documentaition
+  * added a new queue that persists the messages in the file system
+* 3 tiny changes:
+  * fixed the fmq logger creation
+  * some fixes to the queue manager and some queues
+  * refactored testing of fifo based queues
+
 == 0.3.1 2008-08-27
 
 * 2 minor changes:
