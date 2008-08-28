@@ -17,13 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
 #
-begin
-  require "rack"
-rescue LoadError
-  require "rubygems"
-  require "rack"
-end
-
 module FreeMessageQueue
   # This implements server that plugs the free message queue into a rack enviroment
   class Server

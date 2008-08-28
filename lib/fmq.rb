@@ -17,6 +17,14 @@
 # along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# load the rack enviroment
+begin
+  require "rack"
+rescue LoadError
+  require "rubygems"
+  require "rack"
+end
+
 # load all queues and manager and server
 Dir.glob(File.dirname(__FILE__) + "/fmq/queues/*.rb").each do |file|
   require file
