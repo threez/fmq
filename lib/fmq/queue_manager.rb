@@ -64,10 +64,10 @@ module FreeMessageQueue
   
     # setup the queue manager using the configuration from the configuration
     # file (which is basically a hash)
-    def initialize(&block)
+    def initialize(auto_create_queues = true, &block)
       @queues = {}
       @log = FreeMessageQueue.logger
-      @auto_create_queues = true
+      @auto_create_queues = auto_create_queues
       instance_eval(&block) if block_given?
     end
     
@@ -82,7 +82,7 @@ module FreeMessageQueue
     def setup_queue(path, queue_class = DEFAULT_QUEUE_CLASS, &block)
       check_queue_name(path)
       queue_object = queue_class.new(self)
-      queue_object.instance_eval(&block) if block_given?
+      block.call(queue_object) if block_given?
       @queues[path] = queue_object
       @log.info("[QueueManager] Create queue '#{path}' {type: #{queue_class}, max_messages: #{queue_object.max_messages}, max_size: #{queue_object.max_size}}")
       return queue_object
@@ -125,7 +125,7 @@ module FreeMessageQueue
       unless queue_exists? name
         # only auto create queues if it is configured
         if auto_create_queues?
-          create_queue(name) 
+          setup_queue(name) 
         else
           raise QueueManagerException.new("[QueueManager] There is no queue '#{name}'", caller)
         end
@@ -171,3 +171,4 @@ module FreeMessageQueue
     end
   end
 end
+

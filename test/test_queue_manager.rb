@@ -5,30 +5,20 @@ class TestQueueManager < Test::Unit::TestCase
   DEFAULT_QUEUE_NAME = "/fmq_test/test1"
   
   def setup
-    FreeMessageQueue.log_level "fatal"
+    FreeMessageQueue.log_level "info"
 
-    @queue_manager = FreeMessageQueue::QueueManager.new()
-    
-    @queue_manager.setup do |qm|
-      qm.auto_create_queues = false
-      
-      qm.setup_queue DEFAULT_QUEUE_NAME do |q|
+    @queue_manager = FreeMessageQueue::QueueManager.new(false) do      
+      setup_queue DEFAULT_QUEUE_NAME do |q|
         q.max_messages = 100
         q.max_size = 100.mb
       end
       
-      qm.setup_queue "/second_test_queue"
-      qm.setup_queue "/third_test_queue"
+      setup_queue "/second_test_queue"
+      setup_queue "/third_test_queue"
     end
   end
   
-  def test_config
-    # check that the simple config will work
-    FreeMessageQueue::QueueManager.new()
-    @queue_manager.setup do |qm|
-      qm.auto_create_queues = false
-    end
-    
+  def test_config        
     # check if all queues are available
     assert_equal 3, @queue_manager.queues.size
     [DEFAULT_QUEUE_NAME, "/second_test_queue", "/third_test_queue"].each do |e|
@@ -85,3 +75,4 @@ class TestQueueManager < Test::Unit::TestCase
     }
   end
 end
+
