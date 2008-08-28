@@ -23,14 +23,12 @@ module FreeMessageQueue
   # The SyncronizedQueue implements a little wrapper around the 
   # LinkedQueue to make it thread safe
   #
-  # configuration sample:
-  #  queue-manager:
-  #    auto-create-queues: true
-  #    defined-queues:
-  #      test-queue-1:
-  #        path: /fmq_test/test1
-  #        max-messages: 1000000
-  #        max-size: 10kb
+  #  queue_manager = FreeMessageQueue::QueueManager.new(true) do
+  #    setup_queue "/fmq_test/test1" do |q|
+  #      q.max_messages = 1000000
+  #      q.max_size = 10.kb
+  #    end
+  #  end
   class SyncronizedQueue < LinkedQueue
     
     def initialize(manager)
@@ -45,10 +43,10 @@ module FreeMessageQueue
       }
     end
     
-    # Puts one item to the queue
-    def put(data)
+    # Puts one message to the queue
+    def put(message)
       @semaphore.synchronize {
-        super(data)
+        super(message)
       }
     end
   end

@@ -23,15 +23,11 @@ module FreeMessageQueue
   # multiple threads at one queue at a time. Currently this is not
   # considered to be a stable queue. Just use it for experimental things.
   #
-  # configuration sample:
-  #  queue-manager:
-  #    auto-create-queues: true
-  #    defined-queues:
-  #      test-queue-1:
-  #        path: /fmq_test/test1
-  #        max-messages: 1000000
-  #        max-size: 10kb
-  #        class: FreeMessageQueue::LoadBalancedQueue
+  #  queue_manager = FreeMessageQueue::QueueManager.new(true) do
+  #    setup_queue "/fmq_test/test1", FreeMessageQueue::LoadBalancedQueue do |q|
+  #      q.forward_to = ["/fmq_test/test1", "/fmq_test/test2"]
+  #    end
+  #  end
   class LoadBalancedQueue    
     # QueueManager refrence
     attr_accessor :manager
@@ -71,8 +67,8 @@ module FreeMessageQueue
     end
     
     # Put an item to one of the queues
-    def put(data)
-      @queues[next_put_index].put(data)
+    def put(message)
+      @queues[next_put_index].put(message)
     end
     
     # queue has infinite count

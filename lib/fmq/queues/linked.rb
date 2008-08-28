@@ -35,7 +35,7 @@ module FreeMessageQueue
   
     # Put an item to the queue
     def put(message)
-      return false if message == nil
+      return false if message.nil?
       
       add_message(message) # update stats and check constraints
       

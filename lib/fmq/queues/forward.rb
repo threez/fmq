@@ -21,13 +21,11 @@ require File.dirname(__FILE__) + '/base'
 module FreeMessageQueue
   # This queue returns sends one message to several queues at a time.
   # 
-  # configuration sample:
-  #  queue-manager:
-  #    auto-create-queues: true
-  #    defined-queues:
-  #      path: /fmq_test/forward_to_1_and_2
-  #      class: FreeMessageQueue::ForwardQueue
-  #      forward_to: /fmq_test/test1 /fmq_test/test2
+  #  queue_manager = FreeMessageQueue::QueueManager.new(true) do
+  #    setup_queue "/fmq_test/forward_to_1_and_2", FreeMessageQueue::ForwardQueue do |q|
+  #      q.forward_to = ["/fmq_test/test1", "/fmq_test/test2"]
+  #    end
+  #  end
   #
   # *NOTE* the poll method is not implemented in this queue. It is a put only queue.
   class ForwardQueue < BaseQueue

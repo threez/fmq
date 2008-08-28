@@ -22,23 +22,21 @@ module FreeMessageQueue
   # This queue returns everytime the same file. This is useful during debugging or
   # to serve the admin page.
   # 
-  # configuration sample:
-  #  queue-manager:
-  #    auto-create-queues: true
-  #    defined-queues:
-  #      admin-page-index:
-  #      path: /admin/index
-  #      class: FreeMessageQueue::FileQueue
-  #      file: admin-interface/index.html
-  #      content-type: text/html
+  #  queue_manager = FreeMessageQueue::QueueManager.new(true) do
+  #    setup_queue "/dummy/file", FreeMessageQueue::FileQueue do |q|
+  #      q.file = "tmp/default_message.yml"
+  #      q.content_type = "text/yaml"
+  #    end
+  #  end
   #
   # *NOTE* the put method is not implemented in this queue. It is a poll only queue.
   class FileQueue < BaseQueue
     # Return the file and content type
     def poll()
-      f = open(@file_path, "rb")
-      file_content = f.read
-      f.close
+      file_content = ""
+      File.open(@file_path, "rb") do |f|
+        file_content = f.read
+      end
       
       @bytes = file_content.size
       Message.new(file_content, @content_type)

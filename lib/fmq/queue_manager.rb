@@ -15,8 +15,7 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
-# 
-require "ostruct"
+#
 
 # add kb, mb and gb methods for easy use in the config file
 class Fixnum
@@ -150,7 +149,8 @@ module FreeMessageQueue
     def queue_exists?(name)
       !queue(name).nil?
     end
-        
+    
+    # returns the queue qith the passed name
     def queue(name)
       return @queues[name]
     end

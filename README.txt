@@ -6,8 +6,6 @@ Project github repositiory: git://github.com/threez/fmq.git
 
 == TODO:
 
-* create full rdoc
-* support of logging to file
 * add client apis for other languages
 * complete unit tests
 
@@ -46,16 +44,17 @@ stores it’s internal data in an FIFO in system memory.
 After installing the gem you can start by creating a project:
 
   fmq create my_project_name
+  
 next step is to change to the folder and start the FMQ server:
 
   cd my_project_name
-  fmq
+  rackup -p 5884
 
-The server will start and host a admin interface on http://localhost:5884/admin/index.
+The server will start and host a admin interface on http://localhost:5884/admin/index.html.
 
 == REQUIREMENTS:
 
-* mongrel (as webserver)
+* rack >= 0.4.0 (web server provider)
 
 == INSTALL:
 
