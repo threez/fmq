@@ -50,6 +50,13 @@ queue_manager = FreeMessageQueue::QueueManager.new(true) do
     # but seperate them with a space char
     q.forward_to = ["/fmq_test/test1", "/fmq_test/test2"]
   end
+  
+  queue_manager = FreeMessageQueue::QueueManager.new(true) do
+    setup_queue "/fmq_test/file_persistent", FreeMessageQueue::FilePersistentQueue do |q|
+      q.folder = "./tmp/mail_box/threez"
+      q.max_messages = 10000
+    end
+  end
 end
 
 # =====================================================
