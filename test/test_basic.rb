@@ -27,19 +27,21 @@ end
 
 class BaseQueue < Test::Unit::TestCase
   def setup
-    @manager = FreeMessageQueue::QueueManager.new()
-    
-    @manager.setup do |m|
-      @queue1 = m.setup_queue "/dummy1"
-      @queue2 = m.setup_queue "/dummy2" do |q|
+    @manager = FreeMessageQueue::QueueManager.new() do 
+      setup_queue "/dummy1"
+      setup_queue "/dummy2" do |q|
         q.max_messages = 100
         q.max_size = 100.kb
       end
-      @queue3 = m.setup_queue "/dummy3" do |q|
+      setup_queue "/dummy3" do |q|
         q.max_size = 0
         q.max_messages = -10
       end
     end
+    
+    @queue1 = @manager.queue "/dummy1"
+    @queue2 = @manager.queue "/dummy2"
+    @queue3 = @manager.queue "/dummy3"
   end
   
   def test_creating
