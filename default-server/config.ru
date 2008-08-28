@@ -13,16 +13,10 @@ FreeMessageQueue.log_level("info")
 # =====================================================
 #        create and configure the queue manager
 # =====================================================
-queue_manager = FreeMessageQueue::QueueManager.new()
 
-queue_manager.setup do |qm|
-  # if someone pushes to a queue that don't exists
-  # the queue manager will create one for you if the option
-  # <em>auto_create_queues</em> is <b>true</b>. This
-  # is a useful option if you are in development,
-  # the queue will be a FreeMessageQueue::SyncronizedQueue by default
-  qm.auto_create_queues = true
-  
+# if someone pushes to a queue that don't exists
+# the queue manager will create one for you if you pass true
+queue_manager = FreeMessageQueue::QueueManager.new(true) do
   # =====================================================
   #      if you want some queues right from startup
   #        define there url and constraints here
@@ -31,7 +25,7 @@ queue_manager.setup do |qm|
   # the path to the queue e.g. /app1/myframe/test1
   # means http://localhost:5884/app1/myframe/test1
   # this parameter is not optional
-  qm.setup_queue "/fmq_test/test1" do |q|
+  setup_queue "/fmq_test/test1" do |q|
     # this defines the maximum count of messages that 
     # can be in the queue, if the queue is full every
     # new message will be rejected with a http error
@@ -46,15 +40,15 @@ queue_manager.setup do |qm|
   
   # if you want you can specify the class of the queue
   # this is interessting if you write your own queues
-  qm.setup_queue "/fmq_test/test2", FreeMessageQueue::LoadBalancedQueue
+  setup_queue "/fmq_test/test2", FreeMessageQueue::LoadBalancedQueue
   
   # if you have special queues include put them into the queues
   # folder and and use them (this MyTestQueue is places in queues/mytest.rb)
-  qm.setup_queue "/fmq_test/test3", MyTestQueue
+  setup_queue "/fmq_test/test3", MyTestQueue
   
   # this is a forwarding queue wich forwards one message
   # to some other queues
-  qm.setup_queue "/fmq_test/forward_to_1_and_2", FreeMessageQueue::ForwardQueue do |q|
+  setup_queue "/fmq_test/forward_to_1_and_2", FreeMessageQueue::ForwardQueue do |q|
     # you can add as may queues as you want
     # but seperate them with a space char
     q.forward_to = ["/fmq_test/test1", "/fmq_test/test2"]

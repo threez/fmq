@@ -92,7 +92,7 @@ module FreeMessageQueue
     def delete_queue(name)
       if queue_exists? name
         @log.info("[QueueManager] Delete queue '#{name}' with #{queue(name).size} messages")
-        queue(name).clear
+        queue(name).clear if queue(name).respond_to? :clear
         @queues.delete name
         true
       else
