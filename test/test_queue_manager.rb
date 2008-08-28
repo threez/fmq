@@ -20,7 +20,7 @@ class TestQueueManager < Test::Unit::TestCase
     # check if all queues are available
     assert_equal 3, @queue_manager.queues.size
     [DEFAULT_QUEUE_NAME, "/second_test_queue", "/third_test_queue"].each do |e|
-      assert @queue_manager.queues.include? e
+      assert @queue_manager.queues.include?(e)
     end
   end
   
