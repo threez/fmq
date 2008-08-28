@@ -51,11 +51,13 @@ queue_manager = FreeMessageQueue::QueueManager.new(true) do
     q.forward_to = ["/fmq_test/test1", "/fmq_test/test2"]
   end
   
-  queue_manager = FreeMessageQueue::QueueManager.new(true) do
-    setup_queue "/fmq_test/file_persistent", FreeMessageQueue::FilePersistentQueue do |q|
-      q.folder = "./tmp/mail_box/threez"
-      q.max_messages = 10000
-    end
+  # this is a file system queue that will save each method
+  # in the file system until they are polled
+  # the message is useful if you want to have a queue that will
+  # save it's state so that you can reboot the server
+  setup_queue "/fmq_test/file_persistent", FreeMessageQueue::FilePersistentQueue do |q|
+    q.folder = "./tmp/mail_box/threez"
+    q.max_messages = 10_000
   end
 end
 

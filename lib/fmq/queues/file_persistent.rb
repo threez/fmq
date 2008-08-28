@@ -33,20 +33,23 @@ module FreeMessageQueue
   class FilePersistentQueue < BaseQueue
     # Return the 
     def poll()
-      messages = Dir[@folder_path + "/*.msg"].sort
-      first_file = messages.first
+      check_folder_name
+      messages = all_messages.sort!
+      return nil if messages.size == 0
       
-      msg_bin = File.open(first_file, "rb") { |f| f.read }
+      msg_bin = File.open(messages.first, "rb") { |f| f.read }
+      FileUtils.rm messages.first
       remove_message(Marshal.load(msg_bin))
     end
     
     # add one message to the queue (will be saved in file system)
     def put(message)
+      check_folder_name
       return false if message.nil?
       
       add_message(message) # check constraints and update stats
       
-      msg_bin = Marshal.dump(msg)
+      msg_bin = Marshal.dump(message)
       File.open(@folder_path + "/#{Time.now.to_f}.msg", "wb") do |f|
         f.write msg_bin
       end
@@ -60,5 +63,24 @@ module FreeMessageQueue
       FileUtils.mkdir_p path unless File.exist? path
       @folder_path = path
     end
+  
+    # remove all items from the queue
+    def clear
+      FileUtils.rm all_messages
+      @size = 0
+      @bytes = 0
+    end
+    
+  private
+    
+    # returns an array with all paths to queue messages
+    def all_messages
+      Dir[@folder_path + "/*.msg"]
+    end
+    
+    # raise an exceptin if the folder name is not set
+    def check_folder_name
+      raise QueueException.new("[FilePersistentQueue] The folder_path need to be specified", caller) if @folder_path.nil?
+    end 
   end
 end
