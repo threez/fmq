@@ -1,3 +1,10 @@
+== 0.3.3 2008-09-02
+
+* 1 minor change:
+  * added round robin queue
+* 1 tiny fix:
+  * fixed bug on QueueException handling
+
 == 0.3.2 2008-08-28
 
 * 3 minor changes:
