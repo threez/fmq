@@ -41,6 +41,8 @@ module FreeMessageQueue
           response = client_exception(request, queue_path, 
             ArgumentError.new("[Server] Method is not supported '#{method}'"))
         end
+      rescue QueueException => ex
+        response = client_exception(request, queue_path, ex)
       rescue QueueManagerException => ex
         response = client_exception(request, queue_path, ex)
       end
