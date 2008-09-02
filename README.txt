@@ -25,8 +25,8 @@ The client apis are implemented using the HTTP protocol, so that you can
 use even curl to receive messages. A client library for ruby is implemented 
 right now, other languages will follow.
 
-The queue itself is a RESTful url like @http://localhost:5884/myQueueName/@ 
-or @http://localhost:5884/myApplication/myQueueName/@. If you do a GET request 
+The queue itself is a RESTful url like http://localhost:5884/myQueueName/
+or http://localhost:5884/myApplication/myQueueName/. If you do a GET request 
 to this url with a web browser you will receive one message from the queue.
 
 == FEATURES/PROBLEMS:
