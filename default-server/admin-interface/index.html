@@ -1,50 +1,73 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
-      <title>Free Message Queue</title>
-      <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-	    <link rel="shortcut icon" href="images/logo.png" />
-	    <link href="stylesheets/application.css" rel="stylesheet" type="text/css" />
-	    <script type="text/javascript" src="javascript/prototype.js"></script>
-	    <script type="text/javascript" src="javascript/application.js"></script>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Free Message Queue</title>
+		<link href="stylesheets/application.css" rel="stylesheet" type="text/css" media="screen" />
+		<script type="text/javascript" src="javascript/prototype.js"></script>
+		<script type="text/javascript" src="javascript/application.js"></script>
+		<link rel="shortcut icon" href="images/logo.png" />
 	</head>
 	<body onload="updateSelects(); updateTable();">
-    <div id="container">
-		  <div id="header">
-			  <div id="logo"></div>
-		    <h1>Free Message Queue - Admin Interface</h1>
-			  <h3>the easy http queue system for ruby and all others ...</h3>
-		  </div>
-		  <div id="content">
-			  <!-- LIST QUEUE -->
-			  <h1>Queues</h1>
-			  <p id="queue-table-space"></p>
-			  <input type="button" value="update" onclick="updateTable();" />
-			
-			  <!-- CREATE QUEUE -->
-			  <h1>Create queue</h1>
-			  <p>Queue path: /<input id="queue-create-path" /></p>
-			  <p>Maximum messages: <input id="queue-create-max-messages" value="1000000" /></p>
-			  <p>Maximum queue size in kb, mb, gb: <input id="queue-create-size" value="100mb" /></p>
-			  <input type="button" value="create" onclick="createQueue()" />
-			
-			  <!-- SEND MESSAGE TO QUEUE -->
-			  <h1>Send message to queue</h1>
-			  <p>Queue path: <select id="post-queue-name"><option>NONE</option></select></p>
-			  <p><textarea id="post-body" class="block-text" rows="5" cols="80" style="width: 780px; height: 100px;"></textarea></p>
-			  <input id="post-button" type="button" value="send" 
-				  onclick="sendMessageToQueue('post-button', 'post-queue-name', 'post-body');"/>
-			
-			  <!-- GET MESSAGE FROM QUEUE -->
-			  <h1>Get a message from queue</h1>
-			  <p>Queue path: <select id="get-queue-name"><option>NONE</option></select></p>
-			  <pre id="get-body" class="block-text"></pre>
-			  <input id="get-button" type="button" value="get one" 
-				  onclick="getMessageFromQueue('get-button', 'get-queue-name', 'get-body');"/>
-		  </div>
-		  <div id="footer">
-			  This interface is based on <a href="http://www.prototypejs.org/">prototype</a>
-		  </div>
-	  </div>
+		<div id="header">
+			<div id="logo">
+		        <h1><a href="#">Free Message Queue</a></h1>
+		        <p>the easy http queue system</p>
+			</div>
+		</div>
+		<div id="page">
+			<div id="content">
+				<!-- SEND MESSAGE TO QUEUE -->
+				<h1 class="title">Put a message</h1>
+				<p>
+					Queue path: <select id="post-queue-name"><option>NONE</option></select><br />
+					<textarea id="post-body" class="block-text" rows="5" cols="20"></textarea><br />
+					<input id="post-button" type="button" value="send" 
+						onclick="sendMessageToQueue('post-button', 'post-queue-name', 'post-body');"/>
+				</p>
+
+				<!-- GET MESSAGE FROM QUEUE -->
+				<h1 class="title">Poll a message</h1>
+				<p>
+					Queue path: <select id="get-queue-name"><option>NONE</option></select><br />
+					<code id="get-body" class="block-text"></code>
+					<input id="get-button" type="button" value="get one" 
+						onclick="getMessageFromQueue('get-button', 'get-queue-name', 'get-body');"/>
+				</p>
+			</div>
+			<div id="sidebar">
+				<!-- LIST QUEUE -->
+				<h2>Queues</h2>
+				<p>
+					<span id="queue-table-space"></span>
+					<input type="button" value="delete" onclick="deleteQueue('queue_to_delete');"/> 
+					<input type="button" value="update" onclick="updateTable();" />
+				</p>
+				<!-- CREATE QUEUE -->
+				<h2>Create queue</h2>
+				<p>
+					Queue path: /<input id="queue-create-path" /><br />
+					Maximum messages: <input id="queue-create-max-messages" value="1000000" /><br />
+					Maximum queue size in kb, mb, gb: <input id="queue-create-size" value="100mb" /><br />
+					<input type="button" value="create" onclick="createQueue()" />
+				</p>
+			</div>
+			<div style="clear: both;">&nbsp;</div>
+		</div>
+		<div id="footer">
+			<p>This interface is based on <a href="http://www.prototypejs.org/">prototype</a>. 
+				Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+		</div>
 	</body>
 </html>
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Printing
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20080425
+
+-->

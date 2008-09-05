@@ -29,17 +29,17 @@ function updateTable() {
 }
 
 function fillTableSpaceWithQueues(table_space, queues) {
-	var table = '<table style="width: 100%; border: 1px solid #292C44">' +
-		'<tr><th>Queue name</th><th>queue size</th><th>messages in queue</th><th>options</th></tr>';	
+	var list = '';	
 		
 	queues.each ( function (queue) {
-		table += "<tr><td>" + queue[0] + "</td><td>" + queue[1] + "/" + queue[2] +"</td><td>" + queue[3] + "/" + 
-		queue[4] +'</td><td><input type="button" value="delete" onClick="deleteQueue(\'' + queue[0] + '\');"/></td></tr>';
+		list += "<div><small>" + 
+			'<input type="checkbox" class="queue_to_delete" value="' + queue[0] + '"/><strong>' + 
+			queue[0] + "</strong><br />(" + queue[1] + "/" + queue[2] +") bytes (" + 
+			queue[3] + "/" + queue[4] + ") messages</small> " +
+			'</div>';
 	});
-		
-	table += '</table>';
 
-	$(table_space).innerHTML = table;
+	$(table_space).innerHTML = list;
 }
 
 function fillSelectWithQueuePaths(select_id, queues) {
@@ -113,15 +113,21 @@ function createQueue() {
 	});
 }
 
-function deleteQueue(path) {
-	new Ajax.Request(ADMIN_QUEUE_PATH, {
-		method: 'POST',
-		postBody: "_method=delete&path=" + path,
-		onSuccess: function(transport) {
-		  updateSelects();
-		  updateTable();
-		  alert("Queue " + path + " successfully deleted");
-		},
-		onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
-	});
+function deleteQueue(delete_radio) {
+	radios = document.getElementsByClassName(delete_radio);
+	for (i = 0; i < radios.length; i++) {
+		radio = radios[i]
+		if (radio.checked) {
+			new Ajax.Request(ADMIN_QUEUE_PATH, {
+				method: 'POST',
+				postBody: "_method=delete&path=" + radio.value,
+				onSuccess: function(transport) {
+				  updateSelects();
+				  updateTable();
+				  alert("Queue " + radio.value + " successfully deleted");
+				},
+				onFailure: function(transport){ alert(transport.getHeader("ERROR")) }
+			});
+		}
+	}
 }
