@@ -33,12 +33,12 @@
     <h1>FMQ</h1>
     <div id="version" class="clickable" onclick='document.location = "http://rubyforge.org/projects/fmq"; return false'>
       <p>Get Version</p>
-      <a href="http://rubyforge.org/projects/fmq" class="numbers">0.3.3</a>
+      <a href="http://rubyforge.org/projects/fmq" class="numbers">0.3.4</a>
     </div>
     <h2>&#8594; &#8216;Free Message Queue&#8217;</h2>
 <h2>What</h2>
 <p>The project implements a queue system with a server and some client apis.</p>
-<p>The server is a rack server that holds <span class="caps">REST</span>-named queues, so that the implemention can be changed rapidly. You can <span class="caps">GET</span>, <span class="caps">POST</span>, <span class="caps">DELETE</span>, <span class="caps">HEAD</span> queue messages using the normal <span class="caps">HTTP</span> requests. The system itself uses a configuration file (<strong>config.ru</strong>) to setup queues at startup or even at runtime. The queue implementations can be changed or you can develep own queues with ease.</p>
+<p>The server is a rack server that holds <span class="caps">REST</span>-named queues, so that the implementation can be changed rapidly. You can <span class="caps">GET</span>, <span class="caps">POST</span>, <span class="caps">DELETE</span>, <span class="caps">HEAD</span> queue messages using the normal <span class="caps">HTTP</span> requests. The system itself uses a configuration file (<strong>config.ru</strong>) to setup queues at startup or even at runtime. The queue implementations can be changed or you can develop own queues with ease.</p>
 <p>For an simple administration try out the integrated ajax based web interface.</p>
 <p>The client apis are implemented using the <span class="caps">HTTP</span> protocol, so that you can use even curl to receive messages. A client library for ruby is implemented right now, other languages will follow.</p>
 <p>The queue itself is a RESTful url like <code>http://localhost:5884/myQueueName/</code> or <code>http://localhost:5884/myApplication/myQueueName/</code>. If you do a <span class="caps">GET</span> request to this url with a web browser you will receive one message from the queue.</p>
@@ -54,11 +54,11 @@
 	<li><b>queues</b> to return same file every time (debugging)</li>
 	<li><b>queues</b> to forward messages to several queues</li>
 	<li><b>queues</b> to store data in a <span class="caps">FIFO</span> in memory (for high performance)</li>
-	<li><b>queues</b> to store data in a <span class="caps">FIFO</span> in file system (for high performance)</li>
+	<li><b>queues</b> to store data in a <span class="caps">FIFO</span> in file system</li>
 	<li><b>develop</b> your own queues (very fast)</li>
 </ul>
 <h2>Installing</h2>
-<p><pre class='syntax'><span class="ident">sudo</span> <span class="ident">gem</span> <span class="ident">install</span> <span class="ident">fmq</span></pre></p>
+<pre>sudo gem install fmq</pre>
 <h2>First steps</h2>
 <p>After installing the gem you can start by creating a project:</p>
 <pre>fmq create my_project_name</pre>
@@ -66,9 +66,9 @@
 <pre>cd my_project_name
 rackup -p 5884</pre>
 <p>The server will start and host a admin interface on <a href="http://localhost:5884/admin/index.html">http://localhost:5884/admin/index.html</a>.</p>
-<p>Have a look at <a href="http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html">rDoc</a> to see how to use the client api and the queue configuration on the server.</p>
+<p>Have a look at <a href="http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html">rDoc</a> to see how to use the client <span class="caps">API</span> and the queue configuration on the server.</p>
 <h3>Configuration</h3>
-<p>If you have created your fmq project you will find a <strong>config.ru</strong> file, that contains the configuration. But you can customize it in any way you like. Here is an example for a very basic setup:</p>
+<p>If you have created your <span class="caps">FMQ</span> project you will find a <strong>config.ru</strong> file, that contains the configuration. But you can customize it in any way you like. Here is an example for a very basic setup:</p>
 <pre>
 require "fmq"
 
@@ -80,7 +80,7 @@ queue_manager = FreeMessageQueue::QueueManager.new() do
 end
 
 run FreeMessageQueue::Server.new(queue_manager)</pre>
-<h3>Creation your own queues</h3>
+<h3>Creating your own queues</h3>
 <p>You can easyly implement your own queues by extending the <strong>BaseQueue</strong> class:</p>
 <pre>class MyTestQueue &lt; FreeMessageQueue::BaseQueue
   def put(message)
@@ -95,14 +95,14 @@ run FreeMessageQueue::Server.new(queue_manager)</pre>
 end</pre>
 <p>Ok, so if you have special needs or need a queue that processes a message in different ways it is easy to do&#8230;</p>
 <h2>Git, patches, forks and all that stuff</h2>
-<p>If you want to clone the git repositiory use the command below. Patches, forks and feature requests are welcome, please send them to <i>fmq-3z (at) gmx.net</i>.</p>
+<p>If you want to clone the git repository use the command below. Patches, forks and feature requests are welcome, please send them to <i>fmq-3z (at) gmx.net</i>.</p>
 <pre>git clone git://github.com/threez/fmq.git</pre>
 <p>or if you are behind a http proxy</p>
 <pre>git clone http://github.com/threez/fmq.git</pre>
 <h3>Build and test instructions</h3>
 <p>after cloning the repository you can</p>
 <pre>cd fmq</pre>
-<p>to the directory. But in order to run the tests you have to start a fmq server first:</p>
+<p>to the directory. But in order to run the tests you have to start a <span class="caps">FMQ</span> server first:</p>
 <pre>cd default-server
 rackup -p 5884</pre>
 <p>then run the tests</p>
@@ -110,8 +110,8 @@ rackup -p 5884</pre>
 <h2>Loadtest</h2>
 <p>To check the performance we have done a load test. The system under test was a 2 GB dual-core intel 1.8 Ghz with 100 Mbit/s <span class="caps">LAN</span> and Ruby 1.8.6.<br />
 In the test we simulate 20 applications (with 20 threads). Each of this applications did 2 POSTs and 1 <span class="caps">GET</span> request for 30min. The <span class="caps">POST</span> requests where about 1KB.</p></p>
-<p>This are the results (from 2008-06-10; MongrelHandler):</p>
-<table style="width: 100%;">
+<p>This are the results (from 2008-06-10; Mongrel):</p>
+<table style="width: 100%;" id="loadtest">
 <tr>
 		<th>Test duration:</th>
 		<td>30:01 min</td>
@@ -144,7 +144,7 @@ In the test we simulate 20 applications (with 20 threads). Each of this applicat
 <h2>License</h2>
 <p>This code is free to use under the terms of the <span class="caps">GNU</span> <span class="caps">GENERAL</span> <span class="caps">PUBLIC</span> license (v3).</p>
     <p class="coda">
-      <a href="mailto://fmq-3z@gmx.net">Vincent Landgraf</a>, 28th August 2008<br>
+      <a href="mailto://fmq-3z@gmx.net">Vincent Landgraf</a>, 6th September 2008<br>
       Theme extended from <a href="http://rb2js.rubyforge.org/">Paul Battley</a>
     </p>
 </div>

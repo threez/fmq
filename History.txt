@@ -1,3 +1,9 @@
+== 0.3.4 2008-09-06
+
+* 2 minor change:
+  * complete redesign of the admin interface
+  * complete redesign of the website
+
 == 0.3.3 2008-09-02
 
 * 1 minor change:
