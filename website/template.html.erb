@@ -20,10 +20,12 @@
           br: { radius: 10 },
           antiAlias: true,
           autoPad: true,
-          validTags: ["div"]
+          validTags: ["div", "a"]
       }
       var versionBox = new curvyCorners(settings, document.getElementById("version"));
       versionBox.applyCornersToAll();
+      var queueImages = new curvyCorners(settings, "queue");
+      queueImages.applyCornersToAll();
     }
   </script>
 </head>

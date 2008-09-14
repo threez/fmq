@@ -20,10 +20,12 @@
           br: { radius: 10 },
           antiAlias: true,
           autoPad: true,
-          validTags: ["div"]
+          validTags: ["div", "a"]
       }
       var versionBox = new curvyCorners(settings, document.getElementById("version"));
       versionBox.applyCornersToAll();
+      var queueImages = new curvyCorners(settings, "queue");
+      queueImages.applyCornersToAll();
     }
   </script>
 </head>
@@ -51,10 +53,7 @@
 	<li>ruby client lib</li>
 	<li>simple ajax admin interface</li>
 	<li>server is based on rack server stack</li>
-	<li><b>queues</b> to return same file every time (debugging)</li>
-	<li><b>queues</b> to forward messages to several queues</li>
-	<li><b>queues</b> to store data in a <span class="caps">FIFO</span> in memory (for high performance)</li>
-	<li><b>queues</b> to store data in a <span class="caps">FIFO</span> in file system</li>
+	<li><a href="#queues">queues</a> for different purposes</li>
 	<li><b>develop</b> your own queues (very fast)</li>
 </ul>
 <h2>Installing</h2>
@@ -66,7 +65,7 @@
 <pre>cd my_project_name
 rackup -p 5884</pre>
 <p>The server will start and host a admin interface on <a href="http://localhost:5884/admin/index.html">http://localhost:5884/admin/index.html</a>.</p>
-<p>Have a look at <a href="http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html">rDoc</a> to see how to use the client <span class="caps">API</span> and the queue configuration on the server.</p>
+<p>Have a look at <a href="http://fmq.rubyforge.org/rdoc/">rDoc</a> to see how to use the <a href="http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html">client <span class="caps">API</span></a> and the queue configuration on the server.</p>
 <h3>Configuration</h3>
 <p>If you have created your <span class="caps">FMQ</span> project you will find a <strong>config.ru</strong> file, that contains the configuration. But you can customize it in any way you like. Here is an example for a very basic setup:</p>
 <pre>
@@ -94,6 +93,8 @@ run FreeMessageQueue::Server.new(queue_manager)</pre>
   end
 end</pre>
 <p>Ok, so if you have special needs or need a queue that processes a message in different ways it is easy to do&#8230;</p>
+<h2 id="queues">Queues that ship with <span class="caps">FMQ</span></h2>
+<p><a class="queue" href="/rdoc/classes/FreeMessageQueue/FilePersistentQueue.html"><img src="images/file_persistent_queue.jpg" alt="FilePersistentQueue"></a><a class="queue" href="/rdoc/classes/FreeMessageQueue/RoundRobinQueue.html"><img src="images/round_robin_queue.jpg" alt="RoundRobinQueue"></a><a class="queue" href="/rdoc/classes/FreeMessageQueue/ForwardQueue.html"><img src="images/forward_queue.jpg" alt="ForwardQueue"></a><a class="queue" href="/rdoc/classes/FreeMessageQueue/SyncronizedQueue.html"><img src="images/synchronized_queue.jpg" alt="SynchronizedQueue"></a><a class="queue" href="/rdoc/classes/FreeMessageQueue/FileQueue.html"><img src="images/file_queue.jpg" alt="FileQueue"></a></p>
 <h2>Git, patches, forks and all that stuff</h2>
 <p>If you want to clone the git repository use the command below. Patches, forks and feature requests are welcome, please send them to <i>fmq-3z (at) gmx.net</i>.</p>
 <pre>git clone git://github.com/threez/fmq.git</pre>
@@ -144,7 +145,7 @@ In the test we simulate 20 applications (with 20 threads). Each of this applicat
 <h2>License</h2>
 <p>This code is free to use under the terms of the <span class="caps">GNU</span> <span class="caps">GENERAL</span> <span class="caps">PUBLIC</span> license (v3).</p>
     <p class="coda">
-      <a href="mailto://fmq-3z@gmx.net">Vincent Landgraf</a>, 6th September 2008<br>
+      <a href="mailto://fmq-3z@gmx.net">Vincent Landgraf</a>, 14th September 2008<br>
       Theme extended from <a href="http://rb2js.rubyforge.org/">Paul Battley</a>
     </p>
 </div>

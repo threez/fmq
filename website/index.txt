@@ -23,10 +23,7 @@ h2. Features
 * ruby client lib
 * simple ajax admin interface
 * server is based on rack server stack
-* **queues** to return same file every time (debugging)
-* **queues** to forward messages to several queues
-* **queues** to store data in a FIFO in memory (for high performance)
-* **queues** to store data in a FIFO in file system
+* "queues":#queues for different purposes
 * **develop** your own queues (very fast)
 
 h2. Installing
@@ -46,7 +43,7 @@ rackup -p 5884</pre>
 
 The server will start and host a admin interface on "http://localhost:5884/admin/index.html":http://localhost:5884/admin/index.html.
 
-Have a look at "rDoc":http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html to see how to use the client API and the queue configuration on the server.
+Have a look at "rDoc":http://fmq.rubyforge.org/rdoc/ to see how to use the "client API":http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html and the queue configuration on the server.
 
 h3. Configuration
 
@@ -81,6 +78,10 @@ You can easyly implement your own queues by extending the *BaseQueue* class:
 end</pre>
 
 Ok, so if you have special needs or need a queue that processes a message in different ways it is easy to do...
+
+h2(#queues). Queues that ship with FMQ
+
+<a class="queue" href="/rdoc/classes/FreeMessageQueue/FilePersistentQueue.html"><img src="images/file_persistent_queue.jpg" alt="FilePersistentQueue"></a><a class="queue" href="/rdoc/classes/FreeMessageQueue/RoundRobinQueue.html"><img src="images/round_robin_queue.jpg" alt="RoundRobinQueue"></a><a class="queue" href="/rdoc/classes/FreeMessageQueue/ForwardQueue.html"><img src="images/forward_queue.jpg" alt="ForwardQueue"></a><a class="queue" href="/rdoc/classes/FreeMessageQueue/SyncronizedQueue.html"><img src="images/synchronized_queue.jpg" alt="SynchronizedQueue"></a><a class="queue" href="/rdoc/classes/FreeMessageQueue/FileQueue.html"><img src="images/file_queue.jpg" alt="FileQueue"></a>
 
 h2. Git, patches, forks and all that stuff
 

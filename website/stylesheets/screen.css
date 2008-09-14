@@ -67,6 +67,21 @@ td {
   padding: 2px 10px 2px 10px;
 }
 
+.queue {
+	float: left;
+	width: 320px;
+	display: block;
+	text-align: center;
+  background-color: #35383d;
+  padding: 10px;
+	margin: 15px;
+  border: 3px solid #787878;
+}
+
+img {
+	border: 0px;
+}
+
 .success {
 	color: #0CC52B;
 }
