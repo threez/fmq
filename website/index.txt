@@ -14,6 +14,8 @@ The client apis are implemented using the HTTP protocol, so that you can use eve
 
 The queue itself is a RESTful url like @http://localhost:5884/myQueueName/@ or @http://localhost:5884/myApplication/myQueueName/@. If you do a GET request to this url with a web browser you will receive one message from the queue.
 
+If you need some help in getting thinks running watch the "screencasts":http://fmq.ruby-consult.de/FMQ/FMQ/rss.xml.
+
 h2. Features
 
 * FIFO message stores

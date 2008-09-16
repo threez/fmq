@@ -4,6 +4,7 @@
 <head>
   <link rel="stylesheet" href="stylesheets/screen.css" type="text/css" media="screen" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="http://fmq.ruby-consult.de/FMQ/FMQ/rss.xml" />
   <title>
       FMQ
   </title>
@@ -44,6 +45,7 @@
 <p>For an simple administration try out the integrated ajax based web interface.</p>
 <p>The client apis are implemented using the <span class="caps">HTTP</span> protocol, so that you can use even curl to receive messages. A client library for ruby is implemented right now, other languages will follow.</p>
 <p>The queue itself is a RESTful url like <code>http://localhost:5884/myQueueName/</code> or <code>http://localhost:5884/myApplication/myQueueName/</code>. If you do a <span class="caps">GET</span> request to this url with a web browser you will receive one message from the queue.</p>
+<p>If you need some help in getting thinks running watch the <a href="http://fmq.ruby-consult.de/FMQ/FMQ/rss.xml">screencasts</a>.</p>
 <h2>Features</h2>
 <ul>
 	<li><span class="caps">FIFO</span> message stores</li>
@@ -145,7 +147,7 @@ In the test we simulate 20 applications (with 20 threads). Each of this applicat
 <h2>License</h2>
 <p>This code is free to use under the terms of the <span class="caps">GNU</span> <span class="caps">GENERAL</span> <span class="caps">PUBLIC</span> license (v3).</p>
     <p class="coda">
-      <a href="mailto://fmq-3z@gmx.net">Vincent Landgraf</a>, 14th September 2008<br>
+      <a href="mailto://fmq-3z@gmx.net">Vincent Landgraf</a>, 16th September 2008<br>
       Theme extended from <a href="http://rb2js.rubyforge.org/">Paul Battley</a>
     </p>
 </div>
