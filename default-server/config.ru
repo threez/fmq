@@ -1,5 +1,5 @@
 begin
-  require File.dirname(__FILE__) + '/../lib/fmq'
+  require ::File.dirname(__FILE__) + '/../lib/fmq'
 rescue LoadError
   require "fmq"
 end

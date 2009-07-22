@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Free Message Queue.  If not, see <http://www.gnu.org/licenses/>.
 #
+
+require 'yaml'
+
 module FreeMessageQueue
   # This implements server that plugs the free message queue into a rack enviroment
   class Server
@@ -29,7 +32,7 @@ module FreeMessageQueue
     # Process incoming request and send them to the right sub processing method like <em>process_get</em>
     def call(env)
       request = Rack::Request.new(env)
-      queue_path = request.env["REQUEST_PATH"]
+      queue_path = request.env["PATH_INFO"]
       @log.debug("[Server] Request params: #{YAML.dump(request.params)})")
       
       response = nil
