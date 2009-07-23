@@ -78,8 +78,10 @@ module FreeMessageQueue
     
     # create a queue using a block. The block can be used to set configuration
     # options for the queue
-    def setup_queue(path, queue_class = DEFAULT_QUEUE_CLASS, &block)
+    def setup_queue(path, queue_class = nil, &block)
       check_queue_name(path)
+      queue_class ||= DEFAULT_QUEUE_CLASS
+      queue_class = FreeMessageQueue::const_get(queue_class) if queue_class.class == String
       queue_object = queue_class.new(self)
       block.call(queue_object) if block_given?
       @queues[path] = queue_object

@@ -55,9 +55,12 @@ module FreeMessageQueue
           elsif request["_method"] == "create"
             # ======= CREATE QUEUE
             @log.info "[AdminInterface] create queue"
-            @manager.setup_queue request["path"] do |q|
+            @manager.setup_queue(request["path"], request["queue_class"]) do |q|
               q.max_messages = request["max_messages"].to_i
               q.max_size = str_bytes request["max_size"]
+              request.params.each { |k,v|
+                q.send("#{k[3..-1]}=", v) if k.match(/^qm_/)
+              }
             end
             return OK
           else
