@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require File.dirname(__FILE__) + '/helper.rb'
 
 # This is the tests the queue manager interface
 class TestQueueManager < Test::Unit::TestCase
@@ -6,7 +6,7 @@ class TestQueueManager < Test::Unit::TestCase
   
   def setup
     @queue_manager = FreeMessageQueue::QueueManager.new(false) do      
-      setup_queue DEFAULT_QUEUE_NAME do |q|
+      setup_queue TestQueueManager::DEFAULT_QUEUE_NAME do |q|
         q.max_messages = 100
         q.max_size = 100.mb
       end

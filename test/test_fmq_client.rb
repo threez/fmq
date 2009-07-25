@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require File.dirname(__FILE__) + '/helper.rb'
 
 class TestFreeMessageQueue < Test::Unit::TestCase
   TEST_URL = "http://localhost:5884/fmq_test/test1"

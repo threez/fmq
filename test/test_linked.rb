@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require File.dirname(__FILE__) + '/helper.rb'
 
 # This is the default test to the message interface
 class TestLinkedQueue < Test::Unit::TestCase
