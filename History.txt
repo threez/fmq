@@ -1,3 +1,8 @@
+== 0.3.5 2009-07-25
+
+* 1 minor change:
+  * ruby 1.9 and rack 1.0.0 compatibility (thanks to John W Higgins <wishdev@gmail.com>)
+
 == 0.3.4 2008-09-06
 
 * 2 minor change:
@@ -15,7 +20,7 @@
 
 * 3 minor changes:
   * changed the way of the queue manager  setup
-  * updated rdoc, readme and website documentaition
+  * updated rdoc, readme and website documentation
   * added a new queue that persists the messages in the file system
 * 3 tiny changes:
   * fixed the fmq logger creation
@@ -26,9 +31,9 @@
 
 * 2 minor changes:
   * refactored the queue manager and remove legacy code (moved constraints stuff to the base queue)
-  * refactored the setup_queue method in the configuration file (sorry you have to change your configs)
+  * refactored the setup_queue method in the configuration file (sorry you have to change your config)
 * 3 tiny changes:
-  * default-server can now be used from within the development repository (no rund trip nessesary)
+  * default-server can now be used from within the development repository (no rund trip necessary)
   * added and replaced some tests for the new interface of the queue manager and the base queue
   * one can now yield and return messages
 
@@ -38,11 +43,11 @@
   * replaced the mongrel handler by rack so that it can be used by many servers and in different configurations
   * removed the old yml style config and replaced it by a new rubyish config style (see config.ru)
 * 5 tiny changes:
-  * seperated the admin interface handler
+  * separated the admin interface handler
   * removed the configuration stuff  that belonged to the old yml file from queue_manager and boot classes
   * removed that the command fmq can be used to start the server (rackup can be used by now)
-  * admin interface is now seperated to several files (javascript, css, ...)
-  * admin interface is validated by W3C validatior for xhtml strict and css 2.1 compliance
+  * admin interface is now separated to several files (javascript, css, ...)
+  * admin interface is validated by W3C validator for xhtml strict and css 2.1 compliance
 
 == 0.2.0 2008-06-28
 

@@ -44,7 +44,7 @@ The server will start and host a admin interface on http://localhost:5884/admin/
 
 == REQUIREMENTS:
 
-* rack >= 0.4.0 (web server provider)
+* rack >= 1.0.0 (web server provider)
 
 == INSTALL:
 

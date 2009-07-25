@@ -45,7 +45,7 @@ rackup -p 5884</pre>
 
 The server will start and host a admin interface on "http://localhost:5884/admin/index.html":http://localhost:5884/admin/index.html.
 
-Have a look at "rDoc":http://fmq.rubyforge.org/rdoc/ to see how to use the "client API":http://fmq.rubyforge.org/rdoc/classes/FreeMessageQueue/ClientQueue.html and the queue configuration on the server.
+Have a look at "rDoc":http://fmq.rubyforge.org/rdoc/ to see how to use the "client API":http://fmq.rubyforge.org/rdoc/FreeMessageQueue/ClientQueue.html and the queue configuration on the server.
 
 h3. Configuration
 
